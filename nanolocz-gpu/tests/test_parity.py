@@ -3,7 +3,7 @@ from hashlib import sha256
 import numpy as np
 import pytest
 
-from nanolocz.core.parity import (
+from nanolocz.parity import (
     CPU_TOLERANCE,
     FixtureError,
     assert_close,
