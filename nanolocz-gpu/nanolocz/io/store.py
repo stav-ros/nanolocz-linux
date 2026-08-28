@@ -365,6 +365,9 @@ class NanoLoczStore:
             del self.root['tracks']
         self.root.create_group('tracks')
         
+        # Store metadata even for empty tracks
+        self.root['tracks'].attrs['n_tracks'] = len(tracks)
+        
         for i, track in enumerate(tracks):
             track_group = self.root.create_group(f'tracks/track_{i:03d}')
             
@@ -383,8 +386,6 @@ class NanoLoczStore:
                 
                 track_group.attrs['duration'] = len(track.particles)
                 track_group.attrs['track_id'] = track.track_id
-        
-        self.root['tracks'].attrs['n_tracks'] = len(tracks)
     
     def load_tracks(self) -> list[ParticleTrack]:
         """Load particle tracks.
@@ -400,24 +401,23 @@ class NanoLoczStore:
             If track data does not exist in store
         """
         if 'tracks' not in self.root:
-            raise KeyError("No track data found in store")
+            raise KeyError("No track data found")
         
         track_group = self.root['tracks']
         
+        # Check if tracks group has the n_tracks attribute (indicating it was explicitly saved)
+        if 'n_tracks' not in track_group.attrs:
+            raise KeyError("No track data found")
+        
+        # Get the number of tracks from metadata
+        n_tracks = track_group.attrs['n_tracks']
+        
+        # Return empty list if no tracks were saved
+        if n_tracks == 0:
+            return []
+        
         # Find all track subgroups
         track_names = sorted([k for k in track_group.keys() if k.startswith('track_')])
-        
-        # Check if there are any actual tracks with data
-        has_track_data = False
-        for track_name in track_names:
-            track_grp = track_group[track_name]
-            if 'frames' in track_grp:
-                has_track_data = True
-                break
-        
-        if not has_track_data:
-            # Return empty list for empty tracks (not an error)
-            return []
         
         tracks = []
         
