@@ -3,7 +3,7 @@
 Last updated: 2026-08-28
 Current phase: Phase 2 — Data I/O & Storage (IN PROGRESS)
 Current card: NL-10
-Status: in_progress — zarr dependency added, implementation pending
+Status: in_progress — zarr dependency added, 6 failing tests in NL-10 I/O operations need fixes
 
 ## Progress
 
@@ -11,8 +11,8 @@ Status: in_progress — zarr dependency added, implementation pending
 |---|---|---|---|
 | NL-01 | Fork audit and toolbox map | done | `ADR/0000-toolbox-map.md`; upstream revision `e41575c` audited |
 | NL-02 | Golden parity harness | done | `SPEC/parity.md`; checksum loader, centralized tolerances, 7 CPU tests, CI workflow |
-| NL-03 | Typed core contracts | done | `nanolocz/core/types.py`; 70 type contract tests green; protocols with @runtime_checkable |
-| NL-10 | Zarr schema and opener interface | in_progress | `SPEC/NL-10-zarr-schema.md`; zarr dependency added to pyproject.toml |
+| NL-03 | Typed core contracts | done | `nanolocz/core/types.py`; 43 type contract tests green; protocols with @runtime_checkable; SESSIONS/2026-08-28-NL-03.md |
+| NL-10 | Zarr schema and opener interface | in_progress | `SPEC/NL-10-zarr-schema.md`; zarr dependency added to pyproject.toml; 6 failing tests need investigation |
 | NL-11–NL-17 | CPU core port | not_started | blocked by NL-10 |
 | NL-20–NL-24 | GPU backend and kernels | not_started | blocked by P1 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
@@ -24,14 +24,15 @@ Status: in_progress — zarr dependency added, implementation pending
 - Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
 - Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
 - Parity fixtures and tolerances are exposed from `nanolocz.parity`.
-- Validation: `70 passed, 1 skipped`; editable install succeeds; project self-check passes.
+- Validation: `93 passed, 6 failed, 1 skipped`; editable install succeeds; project self-check passes.
 
 ## Phase 2 initiation
 
 - NL-10 selected as next development card (recommended option)
 - Zarr schema specification available in `SPEC/NL-10-zarr-schema.md`
 - Dependency fix: added `zarr>=2.18` to test and dev extras in `pyproject.toml`
-- Next step: implement Zarr store interface and schema validation
+- Current issue: 6 failing tests in `tests/test_io_nl10.py` related to movie metadata, localizations, tracks, particle stacks, compressed storage, and round-trip integration
+- Next step: investigate and fix failing I/O tests
 
 ## Self-check contract
 

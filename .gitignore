@@ -1,32 +1,46 @@
 ```
-# Dependencies
+# Zarr cache/data directories
+**/zarr.json
+*.zarr/
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-venv/
-.venv/
-.env
-.env.local
-.env.*
 
 # Build artifacts
 build/
 dist/
 *.egg-info/
 
-# Testing
-.coverage
-htmlcov/
-.coverage.*
-.nox/
-.tox/
+# Dependencies
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*
 
 # Logs
 *.log
 
-# OS generated files
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
 ```

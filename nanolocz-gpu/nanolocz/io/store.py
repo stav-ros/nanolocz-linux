@@ -314,11 +314,17 @@ class NanoLoczStore:
             if frame_range is not None:
                 score = score[mask]
         
+        # Convert to tuples where expected by the dataclass
+        xy_tuples = [tuple(row) for row in xy]
+        sigmas_tuples = None
+        if sigmas is not None:
+            sigmas_tuples = [tuple(row) for row in sigmas]
+        
         return Localizations(
-            xy=xy.tolist(),
+            xy=xy_tuples,
             frame_index=frame_idx.tolist(),
             intensities=intensities.tolist() if intensities is not None else None,
-            sigmas=sigmas.tolist() if sigmas is not None else None,
+            sigmas=sigmas_tuples,
             score=score.tolist() if score is not None else None,
         )
     
@@ -481,9 +487,12 @@ class NanoLoczStore:
         
         box_size = self.root['particle_stacks'].attrs.get('box_size', None)
         
+        # Convert to tuples where expected by the dataclass
+        centers_tuples = [tuple(row) for row in centers]
+        
         return ParticleStack(
             data=data,
-            centers_xy=centers.tolist(),
+            centers_xy=centers_tuples,
             frame_index=frame_idx.tolist(),
             box_size=box_size,
         )
