@@ -1,58 +1,38 @@
-# Node / frontend
-node_modules/
-npm-debug.log*
-
-# Python
-__pycache__/
+```python
+# Compiled Python files
 *.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+__pycache__/
 
-# Virtual environments
-venv/
-env/
-ENV/
+# Dependencies
 .venv/
-.env/
+venv/
+node_modules/
 
-# Testing
-.coverage
-coverage/
-htmlcov/
-.nox/
-.tox/
-.pytest_cache/
-.mypy_cache/
+# Build artifacts
+dist/
+build/
+target/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+# Logs and temporary files
 *.log
+*.tmp
+*.swp
 
-# Environment variables
+# Environment files
 .env
 .env.local
 *.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Coverage reports
+.coverage
+coverage/
+htmlcov/
+
+# Python cache
+.mypy_cache/
+.pytest_cache/
+```
