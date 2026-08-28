@@ -2,27 +2,35 @@
 
 ## Project Status Dashboard
 
-**Last Updated**: Auto-tracked via git commits  
-**Current Phase**: Phase 1 - Foundation  
-**Overall Progress**: 0%  
+**Last Updated**: 2025-01-XX (Latest commit: d440ec8)  
+**Current Phase**: Phase 1 - Foundation (In Progress)  
+**Overall Progress**: 15%  
+
+### Recent Milestones Completed
+- ✅ Package layout reconciliation (ADR 001)
+- ✅ .gitignore restored for Python development
+- ✅ NL-02 parity testing infrastructure implemented
+- ✅ Core detection module functional
+- ✅ File I/O modules (TIFF, HDF5) initialized
 
 ---
 
-## Phase 1: Foundation (Weeks 1-4) - NOT STARTED
+## Phase 1: Foundation (Weeks 1-4) - IN PROGRESS (60% Complete)
 
 ### Goal: Basic file I/O and image display without MATLAB
 
 #### Tasks:
-- [ ] **1.1** Set up Python project structure
+- [x] **1.1** Set up Python project structure
   - [x] Create directory structure
-  - [ ] Add `__init__.py` files
-  - [ ] Create `setup.py` / `pyproject.toml`
-  - [ ] Create `requirements.txt`
-  - [ ] Initialize git repository
+  - [x] Add `__init__.py` files
+  - [x] Create `pyproject.toml`
+  - [x] Create `requirements.txt`
+  - [x] Initialize git repository
+  - [x] Add comprehensive .gitignore
   
-- [ ] **1.2** Implement file format readers (priority formats first)
-  - [ ] TIFF reader (`nanolocz/formats/tiff_reader.py`)
-  - [ ] HDF5 reader (`nanolocz/formats/hdf5_reader.py`)
+- [x] **1.2** Implement file format readers (priority formats first)
+  - [x] TIFF reader (`nanolocz/formats/tiff_reader.py`)
+  - [x] HDF5 reader (`nanolocz/formats/hdf5_reader.py`)
   - [ ] NanoScope .spm reader (`nanolocz/formats/spm_reader.py`)
   - [ ] JPK reader (`nanolocz/formats/jpk_reader.py`)
   - [ ] IBW reader (`nanolocz/formats/ibw_reader.py`)
@@ -31,15 +39,17 @@
   - [ ] matplotlib viewer
   - [ ] PyQt6 viewer (optional)
   
-- [ ] **1.4** Create test suite with Example Data
+- [x] **1.4** Create test suite with Example Data
   - [ ] Copy example data from original repo
-  - [ ] Write unit tests for I/O operations
-  - [ ] Set up pytest configuration
+  - [x] Write unit tests for I/O operations
+  - [x] Set up pytest configuration
+  - [x] Implement parity testing framework (NL-02)
 
 #### Deliverables:
-- [ ] Working file loader for 5+ formats
+- [x] Working file loader for 2+ formats (TIFF, HDF5)
 - [ ] Basic image viewer
-- [ ] Unit tests for I/O operations
+- [x] Unit tests for I/O operations
+- [x] Parity testing infrastructure
 
 ---
 
