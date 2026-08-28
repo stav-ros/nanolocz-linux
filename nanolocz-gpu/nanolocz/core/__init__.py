@@ -1,23 +1,13 @@
-"""
-Core image processing algorithms for NanoLocz.
+"""Core typed contracts and analysis operations for NanoLocz."""
 
-This module contains the main particle detection, localization, 
-and tracking algorithms ported from MATLAB.
-"""
-
-from nanolocz.core.detection import fast_peaks2d, detect_particles
-from nanolocz.core.parity import (
-    ParityResult,
-    compare_arrays,
-    run_parity_test,
-    generate_parity_report,
-)
+from nanolocz.core.detection import detect_particles, fast_peaks2d
+from nanolocz.core.types import Frame, Localizations, Meta, ParticleStack
 
 __all__ = [
-    'fast_peaks2d',
-    'detect_particles',
-    'ParityResult',
-    'compare_arrays',
-    'run_parity_test',
-    'generate_parity_report',
+    "Frame",
+    "Meta",
+    "Localizations",
+    "ParticleStack",
+    "detect_particles",
+    "fast_peaks2d",
 ]
