@@ -1,0 +1,25 @@
+name: Python CPU checks
+
+on:
+  push:
+    paths:
+      - "nanolocz-gpu/**"
+  pull_request:
+    paths:
+      - "nanolocz-gpu/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nanolocz-gpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[test]"
+      - run: python -m pytest -q
+      - run: python tools/project_check.py
