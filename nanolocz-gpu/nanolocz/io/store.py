@@ -363,7 +363,9 @@ class NanoLoczStore:
         # Remove existing tracks
         if 'tracks' in self.root:
             del self.root['tracks']
-        self.root.create_group('tracks')
+        tracks_group = self.root.create_group('tracks')
+        tracks_group.attrs['tracks_saved'] = True
+        tracks_group.attrs['n_tracks'] = len(tracks)
         
         for i, track in enumerate(tracks):
             track_group = self.root.create_group(f'tracks/track_{i:03d}')
@@ -403,9 +405,18 @@ class NanoLoczStore:
             raise KeyError("No track data found in store")
         
         track_group = self.root['tracks']
+        saved_marker = bool(track_group.attrs.get('tracks_saved', False))
         
-        # Find all track subgroups
+        # Find all track subgroups. Existing children are treated as legacy
+        # saved data when the marker is absent.
         track_names = sorted([k for k in track_group.keys() if k.startswith('track_')])
+        if not saved_marker and not track_names:
+            raise KeyError("No track data found in store")
+        
+        # An explicitly saved empty list is distinct from a new store whose
+        # scaffolding contains no track data.
+        if saved_marker and track_group.attrs.get('n_tracks') == 0:
+            return []
         
         # Check if there are any actual tracks with data
         has_track_data = False
