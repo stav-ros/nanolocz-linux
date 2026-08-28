@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-28
 Current phase: Phase 2 — Data I/O & Storage (COMPLETE)
-Current card: NL-12
-Status: ready — CPU core port (leveling, filters, masks, detection, tracking)
+Current card: NL-16 — Detection, statistics, and masks
+Status: in_progress — implementing detection algorithms with statistics and mask support
 
 ## Progress
 
@@ -14,7 +14,11 @@ Status: ready — CPU core port (leveling, filters, masks, detection, tracking)
 | NL-03 | Typed core contracts | done | `nanolocz/core/types.py`; 43 type contract tests green; protocols with @runtime_checkable; SESSIONS/2026-08-28-NL-03.md |
 | NL-10 | Zarr schema and opener interface | **done** | `SPEC/NL-10-zarr-schema.md`; `nanolocz/io/store.py`; 29/29 I/O tests green; complete round-trip validation; SESSIONS/2026-08-28-NL-10.md |
 | NL-11 | .gwy and .h5-jpk Openers | **done** | Gwyddion (.gwy) and JPK (.h5-jpk) readers implemented; unified opener interface; metadata extraction; 99/99 tests green; SESSIONS/2026-08-28-NL-11.md |
-| NL-12–NL-17 | CPU core port | not_started | ready to start |
+| NL-14 | Line, plane, and weighted multi-plane levelling | **done** | `nanolocz/core/leveling.py`; line/plane/weighted leveling; batch movie processing; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
+| NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
+| NL-16 | Detection, statistics, and masks | in_progress | implementing peak detection, prominence calculation, statistical analysis |
+| NL-17 | Deterministic single-particle tracking | not_started | ready to start after NL-16 |
+| NL-12–NL-13 | Additional file openers | not_started | ready to start |
 | NL-20–NL-24 | GPU backend and kernels | not_started | blocked by P1 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
@@ -52,18 +56,32 @@ Status: ready — CPU core port (leveling, filters, masks, detection, tracking)
 - Opener interface tests (Zarr, HDF5, TIFF)
 - Schema validation and version compatibility
 
+### NL-14 Deliverables (Leveling)
+- Line leveling: subtract median/mean per line
+- Plane leveling: fit and subtract 2D polynomial surface
+- Weighted multi-plane leveling: robust fitting with outlier rejection
+- Batch movie processing: apply leveling to all frames
+- Integration with Frame and Meta types from NL-03
+
+### NL-15 Deliverables (Filters, Masks, Profiles)
+- Filters: Gaussian, median, uniform filtering with configurable kernels
+- Derivatives: gradient magnitude, Laplacian computation
+- Masks: threshold, percentile, adaptive, custom masks
+- Scar removal: line artifact detection and inpainting
+- Morphological operations: erosion, dilation, opening, closing
+- Profile extraction: line profiles, radial averages
+
 ## Next action
 
-Execute NL-12: CPU Core Port — implement leveling algorithms, filters/masks/profiles, detection/statistics, and deterministic tracking.
-This establishes the complete CPU reference path before GPU optimization. Focus on:
-- NL-14: Leveling algorithms (plane fitting, median subtraction)
-- NL-15: Filters and masks (Gaussian, median, custom profiles)
-- NL-16: Detection with statistics and mask support
-- NL-17: Deterministic tracking algorithm
-- Golden fixture parity with MATLAB/reference implementations
+Execute NL-16: Detection, Statistics, and Masks — implement peak detection algorithms with statistical analysis and mask support. Focus on:
+- Peak detection with prominence calculation
+- Local maxima finding with connectivity constraints
+- Statistical measures (intensity, volume, eccentricity)
+- Mask-based region analysis
+- Golden fixture parity with MATLAB Fast_peaks2D.m
 - Comprehensive test coverage with representative AFM data
 
-After NL-12-17 completion, the CPU-only workflow will be:
+After NL-16 completion, proceed to NL-17: Deterministic Single-Particle Tracking to complete the CPU-only workflow:
 AFM file → normalized Frame → preprocessing → detection → tracking → export
 
 ## Self-check contract
