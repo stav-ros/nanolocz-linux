@@ -59,9 +59,9 @@ include = ["nanolocz*"]
 
 ### Parity Infrastructure Integration
 The NL-02 parity utilities from the src layout scaffold will be migrated into the top-level layout under:
-- `nanolocz/core/parity.py` - Parity testing utilities
-- `nanolocz/core/fixtures.py` - MATLAB parity test fixtures
-- `nanolocz/core/tolerance.py` - Numerical tolerance utilities
+- `nanolocz/parity/__init__.py` - Public parity testing API
+- `nanolocz/parity/fixtures.py` - SHA-256 verified MATLAB parity fixtures
+- `nanolocz/parity/tolerance.py` - Centralized numerical tolerance policy
 
 ## Consequences
 
