@@ -147,8 +147,8 @@ class TestMovieIO:
         with NanoLoczStore(temp_zarr_path, mode='w') as store:
             store.save_movie(sample_movie, metadata)
             
-            # Check metadata was saved
-            assert store.root['movie'].attrs['pixel_size'] == (0.5, 0.5)
+            # Check metadata was saved (Zarr stores tuples as lists)
+            assert list(store.root['movie'].attrs['pixel_size']) == [0.5, 0.5]
             assert store.root['movie'].attrs['units'] == 'nm'
     
     def test_load_movie_frame_range(self, temp_zarr_path, sample_movie):
@@ -370,11 +370,13 @@ class TestSchemaValidation:
         """Test that data is compressed."""
         with NanoLoczStore(temp_zarr_path, mode='w') as store:
             store.save_movie(sample_movie)
-        
-        # Check that compressor is set
-        movie_array = store.root['movie/data']
-        assert movie_array.compressor is not None
-        assert 'zstd' in str(movie_array.compressor)
+
+        # Check that compressors is set (Zarr v3 uses compressors instead of compressor)
+        movie_array = store.root["movie/data"]
+        assert movie_array.compressors is not None
+        assert len(movie_array.compressors) > 0
+        has_zstd = any("zstd" in str(c) for c in movie_array.compressors)
+        assert has_zstd
     
     def test_chunked_storage(self, temp_zarr_path, sample_movie):
         """Test that data is chunked appropriately."""
