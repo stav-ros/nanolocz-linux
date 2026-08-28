@@ -17,7 +17,7 @@ scientific behavior, a CPU reference path, and reproducible handoffs.
 1. Work on exactly one task card from `SPEC/tasks.md` per session.
 2. Read the selected card, its referenced spec, and current `STATUS.md` first.
 3. Write or update the failing test before implementation code.
-4. Public APIs use typed dataclasses from `src/nanolocz/core/types.py`.
+4. Public APIs use typed dataclasses from `nanolocz/core/types.py` (the canonical package).
 5. Keep NumPy/float64 as the reference path; GPU support is optional until P1 is green.
 6. Never edit `SPEC/` or `ADR/` to make a failing implementation pass without approval.
 7. Run `python tools/project_check.py` before handoff. A green check is required.
