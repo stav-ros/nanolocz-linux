@@ -7,7 +7,65 @@ file format and opens the appropriate storage backend.
 from pathlib import Path
 from typing import Literal
 
+import numpy as np
 from nanolocz.io.store import NanoLoczStore
+
+
+class _ReadOnlyFileWrapper:
+    """Wrapper to provide NanoLoczStore-like interface for read-only file formats."""
+    
+    def __init__(self, data, metadata, path):
+        self.data = data
+        self.metadata = metadata
+        self.path = Path(path)
+        self._closed = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+    
+    def close(self):
+        """Close the file wrapper."""
+        self._closed = True
+    
+    @property
+    def closed(self):
+        return self._closed
+    
+    def load_movie(self):
+        """Load movie data."""
+        if self._closed:
+            raise ValueError("File wrapper is closed")
+        return self.data
+    
+    def load_metadata(self):
+        """Load metadata."""
+        if self._closed:
+            raise ValueError("File wrapper is closed")
+        return self.metadata
+    
+    def load_localizations(self):
+        """Raise error - localizations not available in raw file formats."""
+        raise NotImplementedError(
+            f"Localizations not available in {self.path.suffix} format. "
+            f"Run detection pipeline first."
+        )
+    
+    def load_tracks(self):
+        """Raise error - tracks not available in raw file formats."""
+        raise NotImplementedError(
+            f"Tracks not available in {self.path.suffix} format. "
+            f"Run tracking pipeline first."
+        )
+    
+    def load_particle_stacks(self):
+        """Raise error - particle stacks not available in raw file formats."""
+        raise NotImplementedError(
+            f"Particle stacks not available in {self.path.suffix} format. "
+            f"Run extraction pipeline first."
+        )
 
 
 def open_nanolocz(
@@ -95,10 +153,26 @@ def open_nanolocz(
         # TIFF - read-only access via formats module
         if mode != 'r':
             raise ValueError("TIFF format only supports read-only mode")
-        raise NotImplementedError(
-            f"TIFF reader integration coming in NL-11. "
-            f"For now, use formats.read_tiff() directly."
-        )
+        from nanolocz.formats import read_tiff
+        # Return a wrapper that provides NanoLoczStore-like interface
+        data, metadata = read_tiff(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
+    
+    elif suffix == '.gwy':
+        # Gwyddion format - read-only
+        if mode != 'r':
+            raise ValueError("GWY format only supports read-only mode")
+        from nanolocz.formats import read_gwy
+        data, metadata = read_gwy(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
+    
+    elif suffix in ('.h5-jpk', '.jpks'):
+        # JPK HDF5 format - read-only
+        if mode != 'r':
+            raise ValueError("H5-JPK format only supports read-only mode")
+        from nanolocz.formats import read_h5jpk
+        data, metadata = read_h5jpk(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
     
     else:
         raise ValueError(
