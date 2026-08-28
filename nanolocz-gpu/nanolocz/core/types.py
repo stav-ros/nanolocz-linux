@@ -28,6 +28,7 @@ class FileFormat(Enum):
     TIFF = "tiff"
     HDF5 = "hdf5"
     NPZ = "npz"
+    MAT = "mat"
     GWY = "gwy"
     SPM = "spm"
     JPK = "jpk"
@@ -415,6 +416,35 @@ class AnalysisPipeline:
     def total_tracks(self) -> int:
         """Return total number of tracks."""
         return len(self.tracks)
+    
+    def to_dataframe(self):
+        """Convert pipeline results to pandas DataFrame.
+        
+        Returns:
+            pandas.DataFrame: DataFrame containing all localization data.
+            
+        Raises:
+            ImportError: If pandas is not installed.
+        """
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError("pandas required for to_dataframe() - install with: pip install pandas")
+        
+        data = []
+        for frame_locs in self.localizations:
+            for particle in frame_locs:
+                data.append({
+                    'frame': particle.frame,
+                    'x': particle.x,
+                    'y': particle.y,
+                    'intensity': particle.intensity,
+                    'sigma_x': particle.sigma_x,
+                    'sigma_y': particle.sigma_y,
+                    'background': particle.background,
+                    'chi_squared': particle.chi_squared
+                })
+        return pd.DataFrame(data)
 
 
 # ============================================================================
