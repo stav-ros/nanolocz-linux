@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-08-28
-Current phase: Phase 2 — Data I/O & Storage (COMPLETE)
-Current card: NL-11
-Status: in_progress — Implementing .gwy and .h5-jpk openers
+Current phase: Phase 2 — Data I/O & Storage (IN PROGRESS)
+Current card: NL-10
+Status: in_progress — track persistence regression fixed; NL-10 still needs acceptance review
 
 ## Progress
 
