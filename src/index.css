@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Archivo", "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+
+  --color-ink: #071019;
+  --color-ink2: #0a1926;
+  --color-ink3: #0e2130;
+  --color-ink4: #122a3d;
+  --color-line: #16324a;
+  --color-line2: #1f425e;
+  --color-fog: #e8f2f4;
+  --color-dim: #9ab4c2;
+  --color-faint: #5f7c8e;
+  --color-teal: #37e6c4;
+  --color-teal2: #8ff0d0;
+  --color-amber: #ffb454;
+  --color-mag: #ff6e9c;
+  --color-sky2: #5fb2ff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-ink);
+  color: var(--color-fog);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(55, 230, 196, 0.28);
+  color: #eafff8;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0a1926;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f425e;
+  border-radius: 8px;
+  border: 2px solid #0a1926;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d5a7e;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-stretch: 122%;
+  letter-spacing: -0.015em;
+}
+
+/* ---------- scroll reveal ---------- */
+.rv {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 0.9, 0.3, 1),
+    transform 0.75s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- ambient layers ---------- */
+.noise-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+.grid-ambient {
+  background-image:
+    linear-gradient(rgba(95, 178, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(95, 178, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+}
+
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(232, 242, 244, 0.025) 0px,
+    rgba(232, 242, 244, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ---------- keyframes ---------- */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 30s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes dashflow {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+.dash-anim {
+  stroke-dasharray: 5 8;
+  animation: dashflow 1.6s linear infinite;
+}
+
+@keyframes pulsedot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(55, 230, 196, 0.55);
+  }
+  55% {
+    box-shadow: 0 0 0 7px rgba(55, 230, 196, 0);
+  }
+}
+.pulse-dot {
+  animation: pulsedot 2.2s ease-out infinite;
+}
+
+@keyframes caretblink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+.caret-blink {
+  animation: caretblink 1s step-end infinite;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.floaty {
+  animation: floaty 5s ease-in-out infinite;
+}
+
+/* ---------- code tokens ---------- */
+.tok-k {
+  color: #37e6c4;
+}
+.tok-s {
+  color: #ffb454;
+}
+.tok-c {
+  color: #5f7c8e;
+  font-style: italic;
+}
+.tok-f {
+  color: #5fb2ff;
+}
+.tok-n {
+  color: #ff6e9c;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* ---------- accordion ---------- */
+.acc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+.acc-body.open {
+  grid-template-rows: 1fr;
+}
+.acc-inner {
+  overflow: hidden;
+}
+
+/* ---------- corner ticks ---------- */
+.corner-frame {
+  position: relative;
+}
+.corner-frame::before,
+.corner-frame::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(55, 230, 196, 0.55);
+  border-style: solid;
+  z-index: 5;
+  pointer-events: none;
+}
+.corner-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.corner-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .marquee-track,
+  .dash-anim,
+  .pulse-dot,
+  .caret-blink,
+  .floaty {
+    animation: none !important;
+  }
+  .acc-body {
+    transition: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
