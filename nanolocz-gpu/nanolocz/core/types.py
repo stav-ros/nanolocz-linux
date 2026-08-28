@@ -40,6 +40,157 @@ Mask2D = np.ndarray
 
 
 # =============================================================================
+# Core Data Contracts (NL-03)
+# =============================================================================
+
+@dataclass
+class Meta:
+    """Metadata for AFM images.
+    
+    Attributes
+    ----------
+    pixel_size : tuple[float, float]
+        Pixel size in x and y directions (in physical units)
+    height_unit : str
+        Unit for height measurements (e.g., 'nm', 'um')
+    channel : str
+        Imaging channel (e.g., 'height', 'amplitude', 'phase')
+    scan_size : Optional[tuple[float, float]]
+        Physical scan size in x and y
+    scan_rate : Optional[float]
+        Scan rate in Hz
+    lines : Optional[int]
+        Number of scan lines
+    samples_per_line : Optional[int]
+        Number of samples per line
+    """
+    pixel_size: tuple[float, float]
+    height_unit: str = "nm"
+    channel: str = "height"
+    scan_size: Optional[tuple[float, float]] = None
+    scan_rate: Optional[float] = None
+    lines: Optional[int] = None
+    samples_per_line: Optional[int] = None
+
+
+@dataclass
+class Frame:
+    """Single AFM image frame with metadata.
+    
+    Attributes
+    ----------
+    data : Image2D
+        2D image array
+    meta : Meta
+        Associated metadata
+    frame_index : int
+        Frame number in a sequence
+    timestamp : Optional[float]
+        Acquisition timestamp (seconds)
+    """
+    data: Image2D
+    meta: Meta
+    frame_index: int = 0
+    timestamp: Optional[float] = None
+    
+    def __post_init__(self):
+        # Convert list to numpy array if needed
+        if isinstance(self.data, list):
+            object.__setattr__(self, 'data', np.asarray(self.data))
+        if self.data.ndim != 2:
+            raise ValueError("Frame data must be 2D")
+        if self.meta is None:
+            raise ValueError("Frame must have metadata")
+    
+    @property
+    def shape(self) -> tuple[int, int]:
+        """Image shape (height, width)."""
+        return self.data.shape
+    
+    @property
+    def dtype(self) -> np.dtype:
+        """Data type of the image."""
+        return self.data.dtype
+
+
+@dataclass
+class Localizations:
+    """Localization results for detected particles.
+    
+    Attributes
+    ----------
+    xy : list[tuple[float, float]]
+        List of (x, y) coordinates
+    frame_index : list[int]
+        Frame indices for each localization
+    intensities : Optional[list[float]]
+        Intensities at each localization
+    sigmas : Optional[list[tuple[float, float]]]
+        Sigma values (sigma_x, sigma_y) for each localization
+    """
+    xy: list[tuple[float, float]]
+    frame_index: list[int]
+    intensities: Optional[list[float]] = None
+    sigmas: Optional[list[tuple[float, float]]] = None
+    
+    def __post_init__(self):
+        if len(self.xy) != len(self.frame_index):
+            raise ValueError("xy and frame_index must have same length")
+        if self.intensities is not None and len(self.intensities) != len(self.xy):
+            raise ValueError("intensities must have same length as xy")
+        if self.sigmas is not None and len(self.sigmas) != len(self.xy):
+            raise ValueError("sigmas must have same length as xy")
+    
+    def __len__(self) -> int:
+        return len(self.xy)
+    
+    def to_array(self) -> np.ndarray:
+        """Convert to numpy array with columns [frame, x, y]."""
+        arr = np.zeros((len(self.xy), 3))
+        arr[:, 0] = self.frame_index
+        arr[:, 1:] = self.xy
+        return arr
+
+
+@dataclass
+class ParticleStack:
+    """Stack of particle image patches centered on detected particles.
+    
+    Attributes
+    ----------
+    data : np.ndarray
+        4D array (particles, frames, height, width) or (particles, height, width)
+    centers_xy : list[tuple[float, float]]
+        Center coordinates for each particle
+    frame_index : list[int]
+        Frame index for each particle
+    box_size : int
+        Size of the particle boxes
+    """
+    data: np.ndarray
+    centers_xy: list[tuple[float, float]]
+    frame_index: list[int]
+    box_size: int = 7
+    
+    def __post_init__(self):
+        # Convert list to numpy array if needed
+        if isinstance(self.data, list):
+            object.__setattr__(self, 'data', np.asarray(self.data))
+        if len(self.centers_xy) != len(self.frame_index):
+            raise ValueError("centers_xy and frame_index must have same length")
+        if self.data.ndim not in (3, 4):
+            raise ValueError("ParticleStack data must be 3D or 4D")
+    
+    def __len__(self) -> int:
+        return len(self.centers_xy)
+    
+    @property
+    def n_particles(self) -> int:
+        """Number of particles in the stack."""
+        return len(self.centers_xy)
+
+
+# =============================================================================
 # Detection Types
 # =============================================================================
 

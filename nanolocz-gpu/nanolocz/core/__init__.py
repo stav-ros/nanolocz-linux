@@ -7,6 +7,16 @@ infrastructure for validating numerical equivalence.
 """
 
 from nanolocz.core.detection import fast_peaks2d, detect_particles
+from nanolocz.core.types import (
+    Frame,
+    Localizations,
+    Meta,
+    ParticleStack,
+    DetectionResult,
+    LocalizedParticle,
+    ParticleTrack,
+    ImageMetadata,
+)
 from nanolocz.core.parity import (
     ParityResult,
     compare_arrays,
@@ -26,6 +36,15 @@ from nanolocz.core.parity import (
 __all__ = [
     'fast_peaks2d',
     'detect_particles',
+    # Core data contracts (NL-03)
+    'Frame',
+    'Localizations',
+    'Meta',
+    'ParticleStack',
+    'DetectionResult',
+    'LocalizedParticle',
+    'ParticleTrack',
+    'ImageMetadata',
     # Parity testing
     'ParityResult',
     'compare_arrays',

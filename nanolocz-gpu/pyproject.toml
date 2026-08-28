@@ -57,11 +57,6 @@ warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --cov=nanolocz --cov-report=term-missing"
-
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
