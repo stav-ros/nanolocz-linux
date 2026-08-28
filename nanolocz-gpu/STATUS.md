@@ -1,7 +1,7 @@
 # Project status
 
 Last updated: 2026-08-28
-Current phase: P0 — foundation
+Current phase: Phase 1 — foundation reconciliation complete
 Current card: NL-03
 Status: ready for next card
 
