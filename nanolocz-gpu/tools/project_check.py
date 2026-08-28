@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,7 +16,9 @@ REQUIRED = [
     "golden/README.md",
     "SESSIONS/README.md",
     "pyproject.toml",
-    "src/nanolocz/core/types.py",
+    "nanolocz/core/types.py",
+    "nanolocz/parity/fixtures.py",
+    "nanolocz/parity/tolerance.py",
 ]
 STATES = {"not_started", "in_progress", "blocked", "done"}
 
@@ -25,6 +28,22 @@ def main() -> int:
     if missing:
         print("FAIL missing required files:")
         print("\n".join(f"- {path}" for path in missing))
+        return 1
+
+    try:
+        with (ROOT / "pyproject.toml").open("rb") as handle:
+            metadata = tomllib.load(handle)
+    except tomllib.TOMLDecodeError as exc:
+        print(f"FAIL invalid pyproject.toml: {exc}")
+        return 1
+
+    project = metadata.get("project", {})
+    finder = metadata.get("tool", {}).get("setuptools", {}).get("packages", {}).get("find", {})
+    if project.get("name") != "nanolocz" or finder.get("where") != ["."]:
+        print("FAIL pyproject.toml does not describe the canonical top-level package")
+        return 1
+    if "test" not in project.get("optional-dependencies", {}):
+        print("FAIL pyproject.toml must define the test extra")
         return 1
 
     status = (ROOT / "STATUS.md").read_text(encoding="utf-8")
@@ -42,10 +61,14 @@ def main() -> int:
     if "Allowed states:" not in status:
         print("FAIL STATUS.md must document allowed states")
         return 1
+    if (ROOT / "src" / "nanolocz").exists():
+        print("FAIL obsolete src/nanolocz package still exists")
+        return 1
 
     print(f"PASS project scaffold is self-consistent; current card {current.group(1)}")
     print(f"PASS {len(REQUIRED)} required memory/contract files present")
     print(f"PASS {len(rows)} tracked task status rows use valid states")
+    print("PASS canonical package and pyproject.toml are aligned")
     return 0
 
 

@@ -1,7 +1,7 @@
 # Project status
 
 Last updated: 2026-08-28
-Current phase: P0 — foundation
+Current phase: Phase 1 — foundation reconciliation complete
 Current card: NL-03
 Status: ready for next card
 
@@ -17,6 +17,13 @@ Status: ready for next card
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-50–NL-54 | Simulation bridge | not_started | can begin after NL-03 |
+
+## Phase 1 reconciliation evidence
+
+- Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
+- Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
+- Parity fixtures and tolerances are exposed from `nanolocz.parity`.
+- Validation: `27 passed, 1 skipped`; editable install succeeds; project self-check passes.
 
 ## Next action
 
