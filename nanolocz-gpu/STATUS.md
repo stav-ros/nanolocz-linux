@@ -18,6 +18,13 @@ Status: ready for next card
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-50–NL-54 | Simulation bridge | not_started | can begin after NL-03 |
 
+## Phase 1 reconciliation evidence
+
+- Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
+- Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
+- Parity fixtures and tolerances are exposed from `nanolocz.parity`.
+- Validation: `27 passed, 1 skipped`; editable install succeeds; project self-check passes.
+
 ## Next action
 
 Execute NL-03 only: implement the typed core contracts, strict type checks, and
