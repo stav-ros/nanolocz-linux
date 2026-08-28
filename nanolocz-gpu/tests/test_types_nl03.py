@@ -355,6 +355,9 @@ class TestLocalizerProtocol:
         from nanolocz.core.types import LocalizationParams, LocalizedParticle, Image2D
         
         class MockLocalizer:
+            def __init__(self, params: LocalizationParams = None):
+                self.params = params
+            
             def localize(self, image_patch: Image2D, 
                         initial_guess: tuple[float, float]) -> LocalizedParticle:
                 return LocalizedParticle(
@@ -363,7 +366,7 @@ class TestLocalizerProtocol:
                     intensity=100.0
                 )
         
-        localizer = MockLocalizer()
+        localizer = MockLocalizer(LocalizationParams())
         assert isinstance(localizer, Localizer)
 
 
@@ -375,10 +378,13 @@ class TestTrackerProtocol:
         from nanolocz.core.types import TrackParams, ParticleTrack, LocalizedParticle
         
         class MockTracker:
+            def __init__(self, params: TrackParams = None):
+                self.params = params
+            
             def track(self, localizations, n_frames: int):
                 return []
         
-        tracker = MockTracker()
+        tracker = MockTracker(TrackParams())
         assert isinstance(tracker, Tracker)
 
 
