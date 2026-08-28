@@ -1,4 +1,13 @@
-# NanoLocz Python - Development Progress Tracker
+# NanoLocz Python - Development Progress Tracker (DEPRECATED)
+
+> **This document is historical and no longer maintained.** It predates the
+> `STATUS.md` / `SPEC/tasks.md` NL-xx card system defined in `AGENT.md` and
+> uses an incompatible Phase/Week/percentage taxonomy. Two competing trackers
+> previously drifted out of sync and contributed to a broken `main` branch.
+>
+> **`STATUS.md` is the single source of truth for current project state.**
+> Do not update this file going forward; it is kept only for historical
+> context on the original planning pass.
 
 ## Project Status Dashboard
 

@@ -1,4 +1,7 @@
-```
+# Node / frontend
+node_modules/
+npm-debug.log*
+
 # Python
 __pycache__/
 *.pyc
@@ -7,7 +10,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -34,6 +36,8 @@ coverage/
 htmlcov/
 .nox/
 .tox/
+.pytest_cache/
+.mypy_cache/
 
 # IDE
 .vscode/
@@ -52,4 +56,3 @@ Thumbs.db
 .env
 .env.local
 *.env.*
-```

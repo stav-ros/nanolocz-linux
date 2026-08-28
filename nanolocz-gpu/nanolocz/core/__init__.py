@@ -1,45 +1,13 @@
-"""
-Core image processing algorithms and parity testing utilities for NanoLocz.
+"""Core typed contracts and analysis operations for NanoLocz."""
 
-This module contains the main particle detection, localization, 
-and tracking algorithms ported from MATLAB, along with NL-02 parity
-infrastructure for validating numerical equivalence.
-"""
-
-from nanolocz.core.detection import fast_peaks2d, detect_particles
-from nanolocz.core.parity import (
-    ParityResult,
-    compare_arrays,
-    run_parity_test,
-    generate_parity_report,
-    # NL-02 additions
-    TolerancePolicy,
-    CPU_TOLERANCE,
-    GPU_TOLERANCE,
-    ParityError,
-    FixtureError,
-    ToleranceError,
-    load_npy_fixture,
-    assert_close,
-)
+from nanolocz.core.detection import detect_particles, fast_peaks2d
+from nanolocz.core.types import Frame, Localizations, Meta, ParticleStack
 
 __all__ = [
-    'fast_peaks2d',
-    'detect_particles',
-    # Parity testing
-    'ParityResult',
-    'compare_arrays',
-    'run_parity_test',
-    'generate_parity_report',
-    # NL-02 tolerance policies
-    'TolerancePolicy',
-    'CPU_TOLERANCE',
-    'GPU_TOLERANCE',
-    # NL-02 exceptions
-    'ParityError',
-    'FixtureError',
-    'ToleranceError',
-    # NL-02 utilities
-    'load_npy_fixture',
-    'assert_close',
+    "Frame",
+    "Meta",
+    "Localizations",
+    "ParticleStack",
+    "detect_particles",
+    "fast_peaks2d",
 ]
