@@ -37,16 +37,11 @@ def read_tiff(filepath, frames='all', channel=0):
     if not filepath.exists():
         raise FileNotFoundError(f"TIFF file not found: {filepath}")
     
-    # Read all pages/metadata
-    with imread(filepath, aszarr=True) as zarr:
-        # Get shape info
-        shape = zarr.shape
-        
-        # Load requested frames
-        if frames == 'all':
-            data = zarr[:]
-        else:
-            data = zarr[:frames]
+    # Read pages directly; the basic reader should not require the optional Zarr
+    # integration used by tifffile's ``aszarr`` adapter.
+    data = imread(filepath)
+    if frames != 'all':
+        data = data[:frames]
     
     # Extract metadata
     metadata = {
