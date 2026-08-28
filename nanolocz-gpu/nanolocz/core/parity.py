@@ -3,11 +3,182 @@ Parity testing utilities for validating Python implementations against MATLAB or
 
 This module provides tools to ensure numerical equivalence between the Python port
 and the original MATLAB NanoLocz implementation.
+
+NL-02 Parity Infrastructure:
+- Fixture loading with checksum validation
+- CPU/GPU tolerance policies
+- Array comparison utilities
 """
 
 import numpy as np
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, Union
 from dataclasses import dataclass
+from pathlib import Path
+from hashlib import sha256
+
+
+# =============================================================================
+# Tolerance Policies (Centralized)
+# =============================================================================
+
+@dataclass(frozen=True)
+class TolerancePolicy:
+    """Centralized tolerance policy for numerical comparisons."""
+    rtol: float  # relative tolerance
+    atol: float  # absolute tolerance
+
+
+# CPU tolerance: tight tolerances for CPU-based comparisons
+CPU_TOLERANCE = TolerancePolicy(rtol=1e-5, atol=1e-8)
+
+# GPU tolerance: looser tolerances for GPU floating-point variations
+GPU_TOLERANCE = TolerancePolicy(rtol=1e-3, atol=1e-5)
+
+
+# =============================================================================
+# Exception Classes
+# =============================================================================
+
+class ParityError(Exception):
+    """Base exception for parity testing failures."""
+    pass
+
+
+class FixtureError(ParityError):
+    """Exception raised when fixture loading or validation fails."""
+    pass
+
+
+class ToleranceError(ParityError):
+    """Exception raised when numerical tolerance checks fail."""
+    pass
+
+
+# =============================================================================
+# Fixture Loading with Checksum Validation
+# =============================================================================
+
+def load_npy_fixture(fixture_path: Union[str, Path]) -> np.ndarray:
+    """
+    Load a NumPy fixture file with SHA-256 checksum validation.
+    
+    Parameters
+    ----------
+    fixture_path : str or Path
+        Path to the .npy fixture file
+    
+    Returns
+    -------
+    np.ndarray
+        Read-only array loaded from the fixture
+    
+    Raises
+    ------
+    FixtureError
+        If checksum validation fails or sidecar file is missing/invalid
+    """
+    fixture_path = Path(fixture_path)
+    
+    if not fixture_path.exists():
+        raise FixtureError(f"Fixture file not found: {fixture_path}")
+    
+    # Load the fixture
+    array = np.load(fixture_path, allow_pickle=False)
+    
+    # Validate checksum using sidecar file
+    sidecar_path = fixture_path.with_suffix(fixture_path.suffix + '.sha256')
+    
+    if not sidecar_path.exists():
+        raise FixtureError(f"Missing sidecar checksum file: {sidecar_path}")
+    
+    # Compute actual checksum
+    actual_digest = sha256(fixture_path.read_bytes()).hexdigest()
+    
+    # Parse expected checksum from sidecar
+    sidecar_content = sidecar_path.read_text(encoding='utf-8').strip()
+    parts = sidecar_content.split()
+    
+    if len(parts) < 2:
+        raise FixtureError(f"Invalid sidecar format: {sidecar_path}")
+    
+    expected_digest = parts[0]
+    expected_filename = parts[1] if len(parts) > 1 else fixture_path.name
+    
+    # Validate filename matches
+    if expected_filename != fixture_path.name:
+        raise FixtureError(
+            f"Filename mismatch in sidecar: expected '{expected_filename}', "
+            f"got '{fixture_path.name}'"
+        )
+    
+    # Validate checksum
+    if actual_digest != expected_digest:
+        raise FixtureError(
+            f"Checksum mismatch for {fixture_path.name}: "
+            f"expected {expected_digest}, got {actual_digest}"
+        )
+    
+    # Return read-only view to prevent accidental modification
+    array.setflags(write=False)
+    return array
+
+
+# =============================================================================
+# Array Comparison Utilities
+# =============================================================================
+
+def assert_close(
+    actual: np.ndarray,
+    expected: np.ndarray,
+    tolerance: Optional[TolerancePolicy] = None,
+    msg: str = ""
+) -> None:
+    """
+    Assert that two arrays are numerically close within tolerance.
+    
+    Parameters
+    ----------
+    actual : np.ndarray
+        Computed result
+    expected : np.ndarray
+        Expected reference result
+    tolerance : TolerancePolicy, optional
+        Tolerance policy (default: CPU_TOLERANCE)
+    msg : str, optional
+        Custom error message prefix
+    
+    Raises
+    ------
+    AssertionError
+        If arrays differ beyond tolerance
+    """
+    if tolerance is None:
+        tolerance = CPU_TOLERANCE
+    
+    # Check shape match
+    if actual.shape != expected.shape:
+        raise AssertionError(
+            f"{msg}Shape mismatch: actual {actual.shape} vs expected {expected.shape}"
+        )
+    
+    # Check dtype match (warning only, not failure)
+    if actual.dtype != expected.dtype:
+        # Allow safe numeric promotions
+        if not (np.issubdtype(actual.dtype, np.floating) and 
+                np.issubdtype(expected.dtype, np.floating)):
+            pass  # Continue with comparison even if dtypes differ
+    
+    # Perform numerical comparison
+    try:
+        np.testing.assert_allclose(
+            actual,
+            expected,
+            rtol=tolerance.rtol,
+            atol=tolerance.atol,
+            equal_nan=True
+        )
+    except AssertionError as e:
+        raise AssertionError(f"{msg}{str(e)}") from e
 
 
 @dataclass
@@ -200,7 +371,7 @@ def run_parity_test(
     )
 
 
-def generate_parity_report(results: list[ParityResult]) -> str:
+def generate_parity_report(results: list) -> str:
     """
     Generate a summary report of multiple parity tests.
     
