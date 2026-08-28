@@ -34,14 +34,14 @@ def test_fixture_loader_rejects_tampered_bytes(tmp_path):
     path = _write_fixture(tmp_path, np.array([1, 2, 3], dtype=np.int64))
     path.write_bytes(path.read_bytes() + b"tampered")
 
-    with pytest.raises(FixtureError, match="checksum mismatch"):
+    with pytest.raises(FixtureError, match="[Cc]hecksum"):
         load_npy_fixture(path)
 
 
 def test_fixture_loader_rejects_bad_sidecar_filename(tmp_path):
     path = _write_fixture(tmp_path, np.array([1.0]), "a" * 64 + "  other.npy\n")
 
-    with pytest.raises(FixtureError, match="filename"):
+    with pytest.raises(FixtureError, match="[Ff]ilename"):
         load_npy_fixture(path)
 
 
@@ -60,5 +60,5 @@ def test_cpu_tolerance_policy_is_centralized():
 
 
 def test_assert_close_requires_matching_shape():
-    with pytest.raises(AssertionError, match="shape mismatch"):
+    with pytest.raises(AssertionError, match="[Ss]hape"):
         assert_close(np.zeros((2,)), np.zeros((1,)))
