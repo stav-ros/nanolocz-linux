@@ -1,4 +1,146 @@
 [build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nanolocz"
+version = "0.1.0-dev"
+description = "Python port of NanoLocz - AFM image analysis platform with GPU acceleration"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+authors = [
+    {name = "NanoLocz Python Team", email = "nanolocz-py@example.com"}
+]
+maintainers = [
+    {name = "NanoLocz Python Team", email = "nanolocz-py@example.com"}
+]
+keywords = [
+    "afm",
+    "microscopy",
+    "image-analysis",
+    "particle-tracking",
+    "gpu",
+    "cuda",
+    "scientific-computing"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = ">=3.9"
+
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "scikit-image>=0.24",
+    "opencv-python>=4.10",
+    "h5py>=3.12",
+    "tifffile>=2024.8",
+    "Pillow>=11.0",
+    "matplotlib>=3.9",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "cupy-cuda12x>=13.0",
+]
+
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "black>=24.0",
+    "flake8>=7.0",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "jupyter>=1.0",
+]
+
+gui = [
+    "PyQt6>=6.7",
+    "pyqtgraph>=0.13",
+]
+
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "numpydoc>=1.7",
+]
+
+all = [
+    "nanolocz[gpu,dev,gui,docs]",
+]
+
+[project.urls]
+Homepage = "https://github.com/george-r-heath/nanolocz-py"
+Documentation = "https://george-r-heath.github.io/nanolocz-py/"
+Repository = "https://github.com/george-r-heath/nanolocz-py"
+"Bug Tracker" = "https://github.com/george-r-heath/nanolocz-py/issues"
+
+[project.scripts]
+nanolocz = "nanolocz.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nanolocz*"]
+
+[tool.setuptools.package-data]
+nanolocz = ["*.txt", "*.md"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=nanolocz --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["nanolocz"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
