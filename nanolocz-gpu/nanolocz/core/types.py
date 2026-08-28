@@ -11,9 +11,10 @@ implementations and provide clear interfaces for GPU-accelerated operations.
 from __future__ import annotations
 
 import numpy as np
-from typing import NamedTuple, Optional, Union, List, Dict, Any
+from typing import NamedTuple, Optional, Union, List, Dict, Any, Protocol, runtime_checkable
 from dataclasses import dataclass, field
 from enum import Enum
+from abc import ABC, abstractmethod
 
 
 # =============================================================================
@@ -545,3 +546,274 @@ class AnalysisPipeline:
             return pd.DataFrame(rows)
         except ImportError:
             raise ImportError("pandas required for DataFrame conversion")
+
+
+# =============================================================================
+# NL-03: Abstract Base Classes (Core Contracts)
+# =============================================================================
+
+@runtime_checkable
+class Detector(Protocol):
+    """Protocol for particle detection algorithms.
+    
+    This protocol defines the interface that all detector implementations
+    must follow, ensuring compatibility across CPU/GPU backends.
+    
+    Examples
+    --------
+    >>> class FastPeaksDetector:
+    ...     def __init__(self, params: DetectionParams):
+    ...         self.params = params
+    ...     def detect(self, image: Image2D) -> DetectionResult:
+    ...         # Implementation here
+    ...         pass
+    >>> detector = FastPeaksDetector(DetectionParams(threshold=0.5))
+    >>> isinstance(detector, Detector)
+    True
+    """
+    
+    def detect(self, image: Image2D) -> DetectionResult:
+        """Detect particles in a single image frame.
+        
+        Parameters
+        ----------
+        image : Image2D
+            Input 2D image array
+            
+        Returns
+        -------
+        DetectionResult
+            Detected coordinates, intensities, and scores
+        """
+        ...
+
+
+@runtime_checkable
+class Localizer(Protocol):
+    """Protocol for sub-pixel localization algorithms.
+    
+    This protocol defines the interface for refining particle positions
+    to sub-pixel precision using various fitting models.
+    
+    Examples
+    --------
+    >>> class GaussianLocalizer:
+    ...     def __init__(self, params: LocalizationParams):
+    ...         self.params = params
+    ...     def localize(self, image_patch: Image2D, 
+    ...                  initial_guess: tuple[float, float]) -> LocalizedParticle:
+    ...         # Implementation here
+    ...         pass
+    >>> localizer = GaussianLocalizer(LocalizationParams())
+    >>> isinstance(localizer, Localizer)
+    True
+    """
+    
+    def localize(self, image_patch: Image2D, 
+                 initial_guess: tuple[float, float]) -> LocalizedParticle:
+        """Refine particle position to sub-pixel precision.
+        
+        Parameters
+        ----------
+        image_patch : Image2D
+            Image patch centered on particle
+        initial_guess : tuple[float, float]
+            Initial (x, y) position estimate
+            
+        Returns
+        -------
+        LocalizedParticle
+            Refined position with fitted parameters
+        """
+        ...
+
+
+@runtime_checkable
+class Tracker(Protocol):
+    """Protocol for particle tracking algorithms.
+    
+    This protocol defines the interface for linking localized particles
+    across frames into continuous trajectories.
+    
+    Examples
+    --------
+    >>> class SimpleTracker:
+    ...     def __init__(self, params: TrackParams):
+    ...         self.params = params
+    ...     def track(self, localizations: List[List[LocalizedParticle]], 
+    ...               n_frames: int) -> List[ParticleTrack]:
+    ...         # Implementation here
+    ...         pass
+    >>> tracker = SimpleTracker(TrackParams(max_displacement=5.0))
+    >>> isinstance(tracker, Tracker)
+    True
+    """
+    
+    def track(self, localizations: List[List[LocalizedParticle]], 
+              n_frames: int) -> List[ParticleTrack]:
+        """Link localized particles into tracks across frames.
+        
+        Parameters
+        ----------
+        localizations : List[List[LocalizedParticle]]
+            Localized particles per frame
+        n_frames : int
+            Total number of frames
+            
+        Returns
+        -------
+        List[ParticleTrack]
+            Complete particle trajectories
+        """
+        ...
+
+
+@runtime_checkable
+class FileReader(Protocol):
+    """Protocol for reading image files.
+    
+    This protocol defines the interface for loading images from various
+    file formats (TIFF, HDF5, etc.) with metadata extraction.
+    """
+    
+    def read(self, filepath: str) -> List[Frame]:
+        """Read image file and return list of frames.
+        
+        Parameters
+        ----------
+        filepath : str
+            Path to image file
+            
+        Returns
+        -------
+        List[Frame]
+            List of frames with metadata
+        """
+        ...
+    
+    def get_metadata(self, filepath: str) -> ImageMetadata:
+        """Get metadata without loading full image data.
+        
+        Parameters
+        ----------
+        filepath : str
+            Path to image file
+            
+        Returns
+        -------
+        ImageMetadata
+            Image metadata
+        """
+        ...
+
+
+@runtime_checkable
+class FileWriter(Protocol):
+    """Protocol for writing results to files.
+    
+    This protocol defines the interface for saving analysis results
+    to various output formats.
+    """
+    
+    def write(self, filepath: str, results: AnalysisPipeline) -> None:
+        """Write analysis results to file.
+        
+        Parameters
+        ----------
+        filepath : str
+            Output file path
+        results : AnalysisPipeline
+            Analysis results to save
+        """
+        ...
+
+
+@dataclass
+class ProcessingContext:
+    """Context for GPU/CPU processing operations.
+    
+    This class manages array allocation and device transfers,
+    providing a unified interface for both CPU and GPU execution.
+    
+    Attributes
+    ----------
+    config : GPUConfig
+        GPU configuration
+    xp : module
+        Array module (numpy or cupy)
+    device_id : Optional[int]
+        Current device ID
+    """
+    config: GPUConfig
+    xp: Any = None  # numpy or cupy module
+    device_id: Optional[int] = None
+    
+    def __post_init__(self):
+        """Initialize array module based on device selection."""
+        device = self.config.resolve_device()
+        if device == DeviceType.GPU:
+            try:
+                import cupy as cp
+                object.__setattr__(self, 'xp', cp)
+                if self.config.device_id is not None:
+                    cp.cuda.Device(self.config.device_id).use()
+                    object.__setattr__(self, 'device_id', self.config.device_id)
+            except (ImportError, Exception):
+                import numpy as np
+                object.__setattr__(self, 'xp', np)
+                object.__setattr__(self, 'device_id', None)
+        else:
+            import numpy as np
+            object.__setattr__(self, 'xp', np)
+            object.__setattr__(self, 'device_id', None)
+    
+    def allocate(self, shape: tuple, dtype=np.float64) -> Any:
+        """Allocate array on current device.
+        
+        Parameters
+        ----------
+        shape : tuple
+            Array shape
+        dtype : dtype
+            Data type
+            
+        Returns
+        -------
+        array
+            Allocated array (numpy or cupy)
+        """
+        return self.xp.zeros(shape, dtype=dtype)
+    
+    def to_device(self, arr: np.ndarray) -> Any:
+        """Transfer array to current device.
+        
+        Parameters
+        ----------
+        arr : np.ndarray
+            Input array
+            
+        Returns
+        -------
+        array
+            Array on target device
+        """
+        if self.xp.__name__ == 'cupy':
+            return self.xp.asarray(arr)
+        return np.asarray(arr)
+    
+    def to_cpu(self, arr: Any) -> np.ndarray:
+        """Transfer array to CPU (numpy).
+        
+        Parameters
+        ----------
+        arr : array
+            Input array (numpy or cupy)
+            
+        Returns
+        -------
+        np.ndarray
+            Numpy array on CPU
+        """
+        if hasattr(arr, 'get'):  # CuPy array
+            return arr.get()
+        return np.asarray(arr)
