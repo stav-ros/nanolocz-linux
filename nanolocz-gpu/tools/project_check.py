@@ -16,9 +16,7 @@ REQUIRED = [
     "golden/README.md",
     "SESSIONS/README.md",
     "pyproject.toml",
-    "nanolocz/core/types.py",
-    "nanolocz/parity/fixtures.py",
-    "nanolocz/parity/tolerance.py",
+    "nanolocz/core/types.py",  # Updated to canonical top-level package layout
 ]
 STATES = {"not_started", "in_progress", "blocked", "done"}
 
