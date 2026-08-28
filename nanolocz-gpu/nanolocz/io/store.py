@@ -143,8 +143,22 @@ class NanoLoczStore:
         # Chunk by frame
         chunks = (1, data.shape[1], data.shape[2])
         
-        # Zarr v3 API: use create_array with data parameter
-        self.root.create_array(
+        # Convert metadata tuples to lists for Zarr JSON compatibility
+        zarr_metadata = None
+        if metadata:
+            zarr_metadata = {}
+            for key, value in metadata.items():
+                if isinstance(value, tuple):
+                    zarr_metadata[key] = list(value)
+                else:
+                    zarr_metadata[key] = value
+        
+        # Delete existing array if it exists (to allow overwrites)
+        if 'movie/data' in self.root:
+            del self.root['movie/data']
+        
+        # Zarr v3 API: use create with compressor parameter
+        self.root.create(
             'movie/data',
             data=data,
             chunks=chunks,
@@ -152,13 +166,13 @@ class NanoLoczStore:
         )
         
         # Save metadata
-        if metadata:
-            self.root['movie'].attrs.update(metadata)
+        if zarr_metadata:
+            self.root['movie'].attrs.update(zarr_metadata)
         
         # Add standard metadata
         self.root['movie'].attrs['shape'] = data.shape
         self.root['movie'].attrs['dtype'] = str(data.dtype)
-        self.root['movie'].attrs['units'] = metadata.get('units', 'nm') if metadata else 'nm'
+        self.root['movie'].attrs['units'] = zarr_metadata.get('units', 'nm') if zarr_metadata else 'nm'
     
     def load_movie(self, frame_range: slice | tuple[int, int] | None = None) -> np.ndarray:
         """Load image movie data.
@@ -230,16 +244,16 @@ class NanoLoczStore:
         if 'localizations/frame_index' in self.root:
             del self.root['localizations/frame_index']
         
-        self.root.create_array('localizations/xy', data=xy, chunks=chunks_xy,
+        self.root.create('localizations/xy', data=xy, chunks=chunks_xy,
                        compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
-        self.root.create_array('localizations/frame_index', data=frame_idx, chunks=chunks_1d, 
+        self.root.create('localizations/frame_index', data=frame_idx, chunks=chunks_1d, 
                        compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
         
         # Save optional fields
         if locs.intensities is not None:
             if 'localizations/intensities' in self.root:
                 del self.root['localizations/intensities']
-            self.root.create_array('localizations/intensities', 
+            self.root.create('localizations/intensities', 
                            data=np.asarray(locs.intensities, dtype=np.float64),
                            chunks=chunks_1d,
                            compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
@@ -247,7 +261,7 @@ class NanoLoczStore:
         if locs.sigmas is not None:
             if 'localizations/sigmas' in self.root:
                 del self.root['localizations/sigmas']
-            self.root.create_array('localizations/sigmas',
+            self.root.create('localizations/sigmas',
                            data=np.asarray(locs.sigmas, dtype=np.float64),
                            chunks=(1000, 2) if np.asarray(locs.sigmas).ndim == 2 else chunks_1d,
                            compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
@@ -255,7 +269,7 @@ class NanoLoczStore:
         if locs.score is not None:
             if 'localizations/score' in self.root:
                 del self.root['localizations/score']
-            self.root.create_array('localizations/score',
+            self.root.create('localizations/score',
                            data=np.asarray(locs.score, dtype=np.float64),
                            chunks=chunks_1d,
                            compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
@@ -360,11 +374,11 @@ class NanoLoczStore:
                 x = np.array([p.x for p in track.particles], dtype=np.float64)
                 y = np.array([p.y for p in track.particles], dtype=np.float64)
                 
-                track_group.create_array('frames', data=frames,
+                track_group.create('frames', data=frames,
                                  compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
-                track_group.create_array('x', data=x,
+                track_group.create('x', data=x,
                                  compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
-                track_group.create_array('y', data=y,
+                track_group.create('y', data=y,
                                  compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
                 
                 track_group.attrs['duration'] = len(track.particles)
@@ -388,11 +402,24 @@ class NanoLoczStore:
         if 'tracks' not in self.root:
             raise KeyError("No track data found in store")
         
-        tracks = []
         track_group = self.root['tracks']
         
         # Find all track subgroups
         track_names = sorted([k for k in track_group.keys() if k.startswith('track_')])
+        
+        # Check if there are any actual tracks with data
+        has_track_data = False
+        for track_name in track_names:
+            track_grp = track_group[track_name]
+            if 'frames' in track_grp:
+                has_track_data = True
+                break
+        
+        if not has_track_data:
+            # Return empty list for empty tracks (not an error)
+            return []
+        
+        tracks = []
         
         for track_name in track_names:
             track_grp = track_group[track_name]
@@ -443,21 +470,21 @@ class NanoLoczStore:
         if 'particle_stacks/data' in self.root:
             del self.root['particle_stacks/data']
         
-        self.root.create_array('particle_stacks/data', data=data, chunks=chunks,
+        self.root.create('particle_stacks/data', data=data, chunks=chunks,
                        compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
         
         # Save centers
         centers = np.asarray(stack.centers_xy, dtype=np.float64)
         if 'particle_stacks/centers_xy' in self.root:
             del self.root['particle_stacks/centers_xy']
-        self.root.create_array('particle_stacks/centers_xy', data=centers,
+        self.root.create('particle_stacks/centers_xy', data=centers,
                        compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
         
         # Save frame indices
         frame_idx = np.asarray(stack.frame_index, dtype=np.int32)
         if 'particle_stacks/frame_index' in self.root:
             del self.root['particle_stacks/frame_index']
-        self.root.create_array('particle_stacks/frame_index', data=frame_idx,
+        self.root.create('particle_stacks/frame_index', data=frame_idx,
                        compressors=[zarr.codecs.Blosc(cname='zstd', clevel=3)])
         
         # Metadata
