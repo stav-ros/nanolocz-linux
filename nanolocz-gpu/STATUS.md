@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-29
 Current phase: Phase 2 — GPU foundation (COMPLETE)
-Current card: NL-20
-Status: done — NumPy/CuPy backend switch and precision policy implemented with comprehensive tests
+Current card: NL-22
+Status: in_progress — NL-21 batched line levelling is complete; beginning detection/statistics kernel work
 
 ## Progress
 
@@ -17,10 +17,12 @@ Status: done — NumPy/CuPy backend switch and precision policy implemented with
 | NL-14 | Line, plane, and weighted multi-plane levelling | **done** | `nanolocz/core/leveling.py`; line/plane/weighted leveling; batch movie processing; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-16 | Detection, statistics, and masks | done | `nanolocz/core/detection.py`; 9 focused tests; 165/165 full Python tests green; typed `DetectionResult`; masks, prominence, min-distance, and statistics |
-| NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; included in 165/165 full Python tests; acceptance documentation review pending |
-| NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; 35+ backend consistency tests; SESSIONS/2026-08-29-NL-20.md |
-| NL-12–NL-13 | Additional file openers | not_started | ready to start |
-| NL-21–NL-24 | GPU kernels | not_started | unblocked by NL-20 |
+| NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; deterministic gap reconnection and input-order IDs; acceptance handoff recorded |
+| NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; SESSIONS/2026-08-29-NL-20.md |
+| NL-12 | `.spm`, `.jpk`, and `.ibw` openers | done | `nanolocz/formats/{spm_reader,jpk_reader,ibw_reader}.py`; 4 focused tests; unified read-only opener routes |
+| NL-13 | `.asd` opener including trace-only files | done | `nanolocz/formats/asd_reader.py`; 3 focused tests; image and trace-only handling; unified read-only opener route |
+| NL-21 | Batched levelling kernel | done | `nanolocz/core/leveling.py::batch_line_leveling`; 4 focused tests; 223/223 runnable tests green; project self-check passes |
+| NL-22–NL-24 | GPU kernels | in_progress | NL-22 is the active card; NL-20 backend and NL-21 batched levelling are complete |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-50–NL-54 | Simulation bridge | not_started | **unblocked** — can start NL-50 |
@@ -30,7 +32,7 @@ Status: done — NumPy/CuPy backend switch and precision policy implemented with
 - Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
 - Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
 - Parity fixtures and tolerances are exposed from `nanolocz.parity`.
-- Validation baseline: `165 passed, 1 skipped` (CuPy unavailable); editable install succeeds; project self-check passes after NL-16 documentation update.
+- Validation baseline: `219 passed, 10 skipped` (CuPy unavailable); editable install succeeds; project self-check passes.
 
 ## Phase 2 completion summary
 
@@ -74,7 +76,7 @@ Status: done — NumPy/CuPy backend switch and precision policy implemented with
 
 ## Next action
 
-Review NL-17 acceptance evidence and reconcile the remaining format-reader cards (NL-12 and NL-13). NL-16 is complete with a NumPy/float64 reference implementation:
+Implement NL-22: detection and statistics kernels using the validated NumPy/CuPy backend policy. NL-12, NL-13, NL-16, NL-17, NL-20, and NL-21 are complete. NL-16 provides a NumPy/float64 reference implementation:
 - typed `DetectionResult` with legacy result access compatibility
 - deterministic local maxima and minimum-distance suppression
 - line-based prominence calculation and threshold filtering
