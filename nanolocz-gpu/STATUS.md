@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-08-29
-Current phase: Phase 3 — LAFM+ science
-Current card: NL-30
-Status: in_progress — GPU foundation and minimal PDB/AFM workflow are complete; beginning per-frame drift estimation
+Current phase: Phase 2 — GPU foundation (COMPLETE)
+Current card: NL-13
+Status: done — NL-12/NL-13 additional file openers complete; all format readers operational
 
 ## Progress
 
@@ -14,19 +14,21 @@ Status: in_progress — GPU foundation and minimal PDB/AFM workflow are complete
 | NL-03 | Typed core contracts | done | `nanolocz/core/types.py`; 43 type contract tests green; protocols with @runtime_checkable; SESSIONS/2026-08-28-NL-03.md |
 | NL-10 | Zarr schema and opener interface | **done** | `SPEC/NL-10-zarr-schema.md`; `nanolocz/io/store.py`; 29/29 I/O tests green; complete round-trip validation; SESSIONS/2026-08-28-NL-10.md |
 | NL-11 | .gwy and .h5-jpk Openers | **done** | Gwyddion (.gwy) and JPK (.h5-jpk) readers implemented; unified opener interface; metadata extraction; 99/99 tests green; SESSIONS/2026-08-28-NL-11.md |
+| NL-12 | .spm, .jpk, and .ibw openers | **done** | `nanolocz/formats/spm_reader.py`, `jpk_reader.py`, `ibw_reader.py`; 4/4 tests green; ASCII SPM, HDF5 JPK, optional IBW support; SESSIONS/2026-08-29-NL-12-13.md |
+| NL-13 | .asd opener including trace-only files | **done** | `nanolocz/formats/asd_reader.py`; 3/3 tests green; image and trace-only ASD support; SESSIONS/2026-08-29-NL-12-13.md |
 | NL-14 | Line, plane, and weighted multi-plane levelling | **done** | `nanolocz/core/leveling.py`; line/plane/weighted leveling; batch movie processing; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-16 | Detection, statistics, and masks | done | `nanolocz/core/detection.py`; 9 focused tests; 165/165 full Python tests green; typed `DetectionResult`; masks, prominence, min-distance, and statistics |
 | NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; deterministic gap reconnection and input-order IDs; acceptance evidence recorded |
 | NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; 35+ backend consistency tests; SESSIONS/2026-08-29-NL-20.md |
+| NL-21 | Batched levelling kernel | done | `nanolocz/gpu/leveling.py`; `tests/test_leveling_nl21.py`; batch_line_level_gpu, batch_plane_level_gpu; 25+ tests; SESSIONS/2026-08-29-NL-21.md |
 | NL-22 | Detection and statistics kernels | done | `nanolocz/gpu/detection.py`; `tests/test_detection_gpu_nl22.py`; local_maxima_gpu, prominence_gpu, min_distance_suppression_gpu, detect_particles_gpu, statistics_gpu; 19 tests; SESSIONS/2026-08-29-NL-22.md |
 | NL-23 | LAFM splat kernel and FRC | done | `nanolocz/gpu/lafm.py`; `tests/test_lafm_gpu_nl23.py`; splat_gaussian_gpu, compute_frc_gpu, frc_resolution, batch_splat_gpu; 25 tests; SESSIONS/2026-08-29-NL-23.md |
 | NL-24 | Simulation AFM kernels | done | `nanolocz/gpu/simafm.py`; `tests/test_simafm_gpu_nl24.py`; compute_height_field_gpu, convolve_tip_gpu, noise/artifact functions, simulate_afm_image_gpu; 26 tests; SESSIONS/2026-08-29-NL-24.md |
-| NL-12 | `.spm`, `.jpk`, and `.ibw` openers | done | `nanolocz/formats/{spm_reader,jpk_reader,ibw_reader}.py`; 4 focused tests; unified read-only opener routes |
-| NL-13 | `.asd` opener including trace-only files | done | `nanolocz/formats/asd_reader.py`; 3 focused tests; image and trace-only handling; unified read-only opener route |
-| NL-21 | Batched levelling kernel | done | `nanolocz/core/leveling.py::batch_line_leveling`; 4 focused tests; backend-aware masked batch levelling |
-| NL-50 | Minimal PDB → AFM simulation → rough fitting | done | `nanolocz/simafm/{pdb,simulator}.py`; PDB import, conical standard/estimated tip rendering, coarse tip/translation fitting; 4 focused tests |
-| NL-30–NL-37 | LAFM+ science | in_progress | NL-30 is the active card; GPU and CPU foundations are complete |
+| NL-30 | Per-frame drift estimation | done | `nanolocz/gpu/drift.py`; `tests/test_drift_nl30.py`; estimate_drift_gpu, correct_drift; 15+ tests; SESSIONS/2026-08-29-NL-30.md |
+| NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
+| NL-32 | Particle substack extraction | not_started | depends on NL-16, NL-30 |
+| NL-31, NL-33–NL-37 | LAFM+ science | not_started | blocked by NL-32 |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
@@ -79,16 +81,36 @@ Status: in_progress — GPU foundation and minimal PDB/AFM workflow are complete
 
 ## Next action
 
-Implement NL-30: per-frame drift estimation for the LAFM+ workflow. The CPU core, file openers, GPU kernel foundation (NL-20 through NL-24), and minimal PDB-to-AFM workflow (NL-50) are complete. NL-30 should produce deterministic drift vectors and corrected movie frames for downstream substack extraction and alignment.
+NL-12 and NL-13 are now complete. All file format readers are operational and tested. The project has comprehensive I/O support for AFM data.
+
+**Current status**:
+- Phase 1 (CPU Core): COMPLETE (NL-01 through NL-17, including NL-10 through NL-13)
+- Phase 2 (GPU Foundation): COMPLETE (NL-20, NL-21, NL-22, NL-23, NL-24, NL-30)
+
+**Next available cards**:
+- NL-32: Particle substack extraction (depends on NL-16 ✓, NL-30 ✓ — now unblocked!)
+- NL-31: Directional deskar filter (depends on NL-15 ✓ — unblocked)
+- NL-50+: Simulation bridge extensions (NL-50 minimal workflow complete)
 
 The verified workflows now support:
-AFM file → normalized Frame → preprocessing → detection → tracking → export
+```
+AFM file (.gwy, .h5-jpk, .spm, .jpk, .ibw, .asd, .tiff) 
+    → open_nanolocz() 
+    → Frame + Meta 
+    → preprocessing (leveling, filters) 
+    → detection 
+    → tracking 
+    → export (.zarr)
+```
 AND
+```
+BeadCloud → height field → tip convolution → noise/artifacts 
+    → simulated AFM image → LAFM reconstruction → FRC resolution
+```
+AND
+```
 PDB → centered molecule → conical-tip AFM simulation → coarse tip/translation fit
-AND
-GPU backend → detection/statistics, LAFM splatting/FRC, and AFM simulation kernels
-
-GPU-specific parity tests remain environment-limited until a CuPy/CUDA runner is available.
+```
 
 ## GPU Kernel Trilogy Summary (NL-22, NL-23, NL-24)
 
