@@ -10,6 +10,44 @@
 
 **License**: GPL v3.0 (must be maintained in the fork)
 
+## Current minimal structure-to-AFM workflow
+
+The fork includes a deliberately small BioAFM-inspired workflow. It currently
+supports PDB atom import, a coarse conical-tip AFM height simulation, a simple
+tip-radius estimate from an AFM image, and rough fitting over tip candidates
+and translations. It is intended for visual exploration and a starting point
+for fitting, not calibrated force-interaction physics or full BioAFMviewer
+compatibility.
+
+```python
+from nanolocz.simafm import (
+    TipParameters,
+    estimate_tip_from_afm,
+    fit_structure_to_afm,
+    load_pdb,
+    simulate_afm,
+)
+
+structure = load_pdb("protein.pdb")
+simulated = simulate_afm(
+    structure,
+    shape=(128, 128),
+    pixel_size_nm=0.1,
+    tip=TipParameters(radius_nm=2.0, cone_angle_deg=20.0),
+)
+tip = estimate_tip_from_afm(experimental_image, pixel_size_nm=0.1)
+fit = fit_structure_to_afm(
+    structure,
+    experimental_image,
+    pixel_size_nm=0.1,
+    tip_candidates=[tip],
+)
+```
+
+The implementation lives in `nanolocz/simafm/`; its focused tests are in
+`tests/test_simafm_simple.py`. The roadmap cards NL-51 through NL-54 cover
+future simulation parity, CUDA acceleration, and optional viewer integration.
+
 ---
 
 ## Current Architecture Analysis
@@ -194,9 +232,10 @@ xarray >= 2024.10     # Multi-dimensional arrays
    - FRC resolution analysis (`measureFRC.m`)
    - Alignment and symmetrization tools
 
-2. ✅ Simulation AFM
-   - Tip-sample interaction modeling
-   - Movie generation
+2. ◐ Minimal Simulation AFM
+   - PDB import and coarse conical-tip height rendering
+   - Estimated tip radius and rough tip/translation fitting
+   - More physical hard-collision modeling and movie generation remain on the roadmap
 
 3. ✅ Area analysis tools
    - ROI selection and measurement

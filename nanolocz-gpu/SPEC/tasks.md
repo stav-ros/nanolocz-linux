@@ -41,11 +41,11 @@ The status ledger lives in `../STATUS.md`.
 
 ## P2.6 — simulation bridge
 
-- **NL-50** PDB ingest to `BeadCloud`. Depends: NL-03.
-- **NL-51** CPU hard-collision height field. Depends: NL-50.
+- **NL-50** Minimal PDB-to-AFM workflow. Depends: NL-03. Acceptance: import ATOM/HETATM coordinates, convert Angstroms to nanometres, render a coarse conical-tip AFM image, estimate a usable tip radius, and perform rough tip/translation fitting. This is intentionally approximate and CPU-first.
+- **NL-51** CPU hard-collision height field and simulation parity improvements. Depends: NL-50.
 - **NL-52** CUDA synthesis kernel. Depends: NL-51, NL-20.
-- **NL-53** Masked NCC scorer and rough fitting. Depends: NL-52.
-- **NL-54** BioAFMviewer validation and napari overlay. Depends: NL-53, NL-41.
+- **NL-53** Masked NCC scorer and rough fitting improvements. Depends: NL-52.
+- **NL-54** Optional BioAFMviewer validation and napari overlay. Depends: NL-53, NL-41.
 
 ## P4 — interface and ship
 

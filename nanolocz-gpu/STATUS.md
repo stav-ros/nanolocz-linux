@@ -26,7 +26,7 @@ Status: in_progress — NL-21 batched line levelling is complete; beginning dete
 | NL-22–NL-24 | GPU kernels | in_progress | NL-22 is the active card; NL-20 backend and NL-21 batched levelling are complete |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
-| NL-50–NL-54 | Simulation bridge | not_started | **unblocked** — can start NL-50 |
+| NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
 ## Phase 1 reconciliation evidence
 
