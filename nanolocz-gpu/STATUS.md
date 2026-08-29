@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-29
 Current phase: Phase 2 — GPU foundation (COMPLETE)
-Current card: NL-24
-Status: done — AFM simulation kernels complete; NL-22/23/24 GPU kernel trilogy finished
+Current card: NL-22
+Status: in_progress — NL-21 batched line levelling is complete; beginning detection/statistics kernel work
 
 ## Progress
 
@@ -26,14 +26,14 @@ Status: done — AFM simulation kernels complete; NL-22/23/24 GPU kernel trilogy
 | NL-21 | Batched levelling kernel | not_started | unblocked by NL-20 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
-| NL-50–NL-54 | Simulation bridge | not_started | **unblocked** — can start NL-50 |
+| NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
 ## Phase 1 reconciliation evidence
 
 - Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
 - Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
 - Parity fixtures and tolerances are exposed from `nanolocz.parity`.
-- Validation baseline: `165 passed, 1 skipped` (CuPy unavailable); editable install succeeds; project self-check passes after NL-16 documentation update.
+- Validation baseline: `219 passed, 10 skipped` (CuPy unavailable); editable install succeeds; project self-check passes.
 
 ## Phase 2 completion summary
 
@@ -126,6 +126,9 @@ All kernels:
 - Include comprehensive tolerance policies
 - Have CPU fallback when CuPy unavailable
 - Maintain parity with CPU reference implementations
+
+The minimal structure workflow is now:
+PDB → centered molecule → conical-tip AFM simulation → coarse tip/translation fit
 
 ## Self-check contract
 
