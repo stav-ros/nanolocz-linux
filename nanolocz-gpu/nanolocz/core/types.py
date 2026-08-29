@@ -186,11 +186,33 @@ class DetectionParams:
 
 @dataclass
 class DetectionResult:
-    """Result from detection algorithm."""
+    """Typed result from particle detection.
+
+    Coordinates use the image convention ``(x, y)``. ``mask`` is the boolean
+    candidate mask produced by the detector, while ``statistics`` contains
+    per-detection arrays such as area, volume, and eccentricity.
+    """
     
-    coordinates: np.ndarray  # Shape (N, 2)
+    coordinates: np.ndarray  # Shape (N, 2), ordered as (x, y)
     intensities: np.ndarray  # Shape (N,)
     scores: np.ndarray  # Shape (N,)
+    mask: np.ndarray | None = None  # Shape (height, width)
+    statistics: dict[str, np.ndarray] = field(default_factory=dict)
+    angle: float | None = None
+
+    def __contains__(self, key: str) -> bool:
+        """Support the legacy dictionary membership checks."""
+        return key in {"locs", "scores", "angle"}
+
+    def __getitem__(self, key: str) -> Any:
+        """Provide a small compatibility view for the former result dict."""
+        if key == "locs":
+            return np.column_stack((self.coordinates, self.intensities, self.scores))
+        if key == "scores":
+            return self.scores
+        if key == "angle":
+            return self.angle
+        raise KeyError(key)
     
     def __post_init__(self):
         """Validate detection result."""
@@ -202,6 +224,11 @@ class DetectionResult:
             raise ValueError(f"intensities length must match coordinates, got {len(self.intensities)} vs {n_detections}")
         if len(self.scores) != n_detections:
             raise ValueError(f"scores length must match coordinates, got {len(self.scores)} vs {n_detections}")
+        if self.mask is not None and self.mask.dtype != bool:
+            raise ValueError("mask must have boolean dtype")
+        for name, values in self.statistics.items():
+            if len(values) != n_detections:
+                raise ValueError(f"statistics[{name!r}] length must match coordinates")
     
     @property
     def n_detections(self) -> int:

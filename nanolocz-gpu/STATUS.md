@@ -1,9 +1,9 @@
 # Project status
 
-Last updated: 2026-08-28
-Current phase: Phase 2 — Data I/O & Storage (COMPLETE)
-Current card: NL-16 — Detection, statistics, and masks
-Status: in_progress — implementing detection algorithms with statistics and mask support
+Last updated: 2026-08-29
+Current phase: Phase 2 — CPU core processing (COMPLETE)
+Current card: NL-16
+Status: done — deterministic detection, prominence, masks, and statistics implemented; NL-17 is verified and ready for acceptance review
 
 ## Progress
 
@@ -16,8 +16,8 @@ Status: in_progress — implementing detection algorithms with statistics and ma
 | NL-11 | .gwy and .h5-jpk Openers | **done** | Gwyddion (.gwy) and JPK (.h5-jpk) readers implemented; unified opener interface; metadata extraction; 99/99 tests green; SESSIONS/2026-08-28-NL-11.md |
 | NL-14 | Line, plane, and weighted multi-plane levelling | **done** | `nanolocz/core/leveling.py`; line/plane/weighted leveling; batch movie processing; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
-| NL-16 | Detection, statistics, and masks | in_progress | implementing peak detection, prominence calculation, statistical analysis |
-| NL-17 | Deterministic single-particle tracking | not_started | ready to start after NL-16 |
+| NL-16 | Detection, statistics, and masks | done | `nanolocz/core/detection.py`; 9 focused tests; 165/165 full Python tests green; typed `DetectionResult`; masks, prominence, min-distance, and statistics |
+| NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; included in 165/165 full Python tests; acceptance documentation review pending |
 | NL-12–NL-13 | Additional file openers | not_started | ready to start |
 | NL-20–NL-24 | GPU backend and kernels | not_started | blocked by P1 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
@@ -29,7 +29,7 @@ Status: in_progress — implementing detection algorithms with statistics and ma
 - Canonical package: `nanolocz/`; obsolete `src/nanolocz/` removed.
 - Single valid `pyproject.toml` with top-level package discovery and `[test]` extra.
 - Parity fixtures and tolerances are exposed from `nanolocz.parity`.
-- Validation: `99 passed, 1 skipped`; editable install succeeds; project self-check passes.
+- Validation baseline: `165 passed, 1 skipped` (CuPy unavailable); editable install succeeds; project self-check passes after NL-16 documentation update.
 
 ## Phase 2 completion summary
 
@@ -73,15 +73,15 @@ Status: in_progress — implementing detection algorithms with statistics and ma
 
 ## Next action
 
-Execute NL-16: Detection, Statistics, and Masks — implement peak detection algorithms with statistical analysis and mask support. Focus on:
-- Peak detection with prominence calculation
-- Local maxima finding with connectivity constraints
-- Statistical measures (intensity, volume, eccentricity)
-- Mask-based region analysis
-- Golden fixture parity with MATLAB Fast_peaks2D.m
-- Comprehensive test coverage with representative AFM data
+Review NL-17 acceptance evidence and reconcile the remaining format-reader cards (NL-12 and NL-13). NL-16 is complete with a NumPy/float64 reference implementation:
+- typed `DetectionResult` with legacy result access compatibility
+- deterministic local maxima and minimum-distance suppression
+- line-based prominence calculation and threshold filtering
+- boolean candidate masks and input mask restriction
+- area, volume, and eccentricity statistics
+- focused synthetic parity tests; MATLAB/golden fixture data remains unavailable in this checkout
 
-After NL-16 completion, proceed to NL-17: Deterministic Single-Particle Tracking to complete the CPU-only workflow:
+The verified CPU workflow is now:
 AFM file → normalized Frame → preprocessing → detection → tracking → export
 
 ## Self-check contract
