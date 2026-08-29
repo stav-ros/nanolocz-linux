@@ -22,6 +22,7 @@ Status: in_progress — NL-21 batched line levelling is complete; beginning dete
 | NL-12 | `.spm`, `.jpk`, and `.ibw` openers | done | `nanolocz/formats/{spm_reader,jpk_reader,ibw_reader}.py`; 4 focused tests; unified read-only opener routes |
 | NL-13 | `.asd` opener including trace-only files | done | `nanolocz/formats/asd_reader.py`; 3 focused tests; image and trace-only handling; unified read-only opener route |
 | NL-21 | Batched levelling kernel | done | `nanolocz/core/leveling.py::batch_line_leveling`; 4 focused tests; 223/223 runnable tests green; project self-check passes |
+| NL-50 | Minimal PDB → AFM simulation → rough fitting | done | `nanolocz/simafm/{pdb,simulator}.py`; PDB import, conical standard/estimated tip rendering, coarse tip/translation fitting; 4 focused tests |
 | NL-22–NL-24 | GPU kernels | in_progress | NL-22 is the active card; NL-20 backend and NL-21 batched levelling are complete |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
@@ -86,6 +87,9 @@ Implement NL-22: detection and statistics kernels using the validated NumPy/CuPy
 
 The verified CPU workflow is now:
 AFM file → normalized Frame → preprocessing → detection → tracking → export
+
+The minimal structure workflow is now:
+PDB → centered molecule → conical-tip AFM simulation → coarse tip/translation fit
 
 ## Self-check contract
 
