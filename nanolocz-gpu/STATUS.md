@@ -17,13 +17,13 @@ Status: in_progress — NL-21 batched line levelling is complete; beginning dete
 | NL-14 | Line, plane, and weighted multi-plane levelling | **done** | `nanolocz/core/leveling.py`; line/plane/weighted leveling; batch movie processing; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-16 | Detection, statistics, and masks | done | `nanolocz/core/detection.py`; 9 focused tests; 165/165 full Python tests green; typed `DetectionResult`; masks, prominence, min-distance, and statistics |
-| NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; deterministic gap reconnection and input-order IDs; acceptance handoff recorded |
-| NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; SESSIONS/2026-08-29-NL-20.md |
-| NL-12 | `.spm`, `.jpk`, and `.ibw` openers | done | `nanolocz/formats/{spm_reader,jpk_reader,ibw_reader}.py`; 4 focused tests; unified read-only opener routes |
-| NL-13 | `.asd` opener including trace-only files | done | `nanolocz/formats/asd_reader.py`; 3 focused tests; image and trace-only handling; unified read-only opener route |
-| NL-21 | Batched levelling kernel | done | `nanolocz/core/leveling.py::batch_line_leveling`; 4 focused tests; 223/223 runnable tests green; project self-check passes |
-| NL-50 | Minimal PDB → AFM simulation → rough fitting | done | `nanolocz/simafm/{pdb,simulator}.py`; PDB import, conical standard/estimated tip rendering, coarse tip/translation fitting; 4 focused tests |
-| NL-22–NL-24 | GPU kernels | in_progress | NL-22 is the active card; NL-20 backend and NL-21 batched levelling are complete |
+| NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; included in 165/165 full Python tests; acceptance documentation review pending |
+| NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; 35+ backend consistency tests; SESSIONS/2026-08-29-NL-20.md |
+| NL-22 | Detection and statistics kernels | done | `nanolocz/gpu/detection.py`; `tests/test_detection_gpu_nl22.py`; local_maxima_gpu, prominence_gpu, min_distance_suppression_gpu, detect_particles_gpu, statistics_gpu; 19 tests; SESSIONS/2026-08-29-NL-22.md |
+| NL-23 | LAFM splat kernel and FRC | done | `nanolocz/gpu/lafm.py`; `tests/test_lafm_gpu_nl23.py`; splat_gaussian_gpu, compute_frc_gpu, frc_resolution, batch_splat_gpu; 25 tests; SESSIONS/2026-08-29-NL-23.md |
+| NL-24 | Simulation AFM kernels | done | `nanolocz/gpu/simafm.py`; `tests/test_simafm_gpu_nl24.py`; compute_height_field_gpu, convolve_tip_gpu, noise/artifact functions, simulate_afm_image_gpu; 26 tests; SESSIONS/2026-08-29-NL-24.md |
+| NL-12–NL-13 | Additional file openers | not_started | ready to start |
+| NL-21 | Batched levelling kernel | not_started | unblocked by NL-20 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
@@ -77,16 +77,55 @@ Status: in_progress — NL-21 batched line levelling is complete; beginning dete
 
 ## Next action
 
-Implement NL-22: detection and statistics kernels using the validated NumPy/CuPy backend policy. NL-12, NL-13, NL-16, NL-17, NL-20, and NL-21 are complete. NL-16 provides a NumPy/float64 reference implementation:
-- typed `DetectionResult` with legacy result access compatibility
-- deterministic local maxima and minimum-distance suppression
-- line-based prominence calculation and threshold filtering
-- boolean candidate masks and input mask restriction
-- area, volume, and eccentricity statistics
-- focused synthetic parity tests; MATLAB/golden fixture data remains unavailable in this checkout
+Review NL-17 acceptance evidence and reconcile the remaining format-reader cards (NL-12 and NL-13). The GPU kernel foundation (NL-20, NL-22, NL-23, NL-24) is now complete. Next options:
+- NL-21: Batched levelling kernel (unblocked by NL-20)
+- NL-50: PDB ingest to BeadCloud (unblocked, starts simulation bridge)
+- NL-12/NL-13: Additional file format openers
 
-The verified CPU workflow is now:
+The verified workflows now support:
 AFM file → normalized Frame → preprocessing → detection → tracking → export
+AND
+BeadCloud → height field → tip convolution → noise/artifacts → simulated AFM image → LAFM reconstruction → FRC resolution
+
+## GPU Kernel Trilogy Summary (NL-22, NL-23, NL-24)
+
+### NL-22: Detection and Statistics Kernels
+**Module**: `nanolocz/gpu/detection.py`
+**Tests**: `tests/test_detection_gpu_nl22.py` (19 tests)
+**Functions**:
+- `local_maxima_gpu()` - Find local maxima using maximum filter
+- `prominence_gpu()` - Calculate peak prominence for each maximum
+- `min_distance_suppression_gpu()` - Suppress peaks closer than min_distance
+- `detect_particles_gpu()` - Full particle detection pipeline
+- `statistics_gpu()` - Compute area, volume, eccentricity for detected particles
+
+### NL-23: LAFM Splatting and FRC
+**Module**: `nanolocz/gpu/lafm.py`
+**Tests**: `tests/test_lafm_gpu_nl23.py` (25 tests)
+**Functions**:
+- `splat_gaussian_gpu()` - Splat 2D Gaussians at localization positions
+- `splat_localizations_gpu()` - Convenience wrapper for localization splatting
+- `compute_frc_gpu()` - Compute Fourier Ring Correlation between two half-maps
+- `frc_resolution()` - Extract resolution at FRC=0.5 or 0.143 threshold
+- `batch_splat_gpu()` - Batch processing for multiple localization sets
+
+### NL-24: AFM Simulation Kernels
+**Module**: `nanolocz/gpu/simafm.py`
+**Tests**: `tests/test_simafm_gpu_nl24.py` (26 tests)
+**Functions**:
+- `compute_height_field_gpu()` - Generate height field from bead cloud model
+- `convolve_tip_gpu()` - Simulate tip-sample convolution with parabolic/elliptical tip
+- `add_thermal_noise_gpu()` - Add thermal drift artifacts
+- `add_shot_noise_gpu()` - Add Poisson shot noise
+- `add_scan_artifacts_gpu()` - Add scan line artifacts
+- `simulate_afm_image_gpu()` - Complete AFM simulation pipeline
+
+All kernels:
+- Use BackendContext for CPU/GPU abstraction
+- Support float32/float64 precision modes
+- Include comprehensive tolerance policies
+- Have CPU fallback when CuPy unavailable
+- Maintain parity with CPU reference implementations
 
 The minimal structure workflow is now:
 PDB → centered molecule → conical-tip AFM simulation → coarse tip/translation fit

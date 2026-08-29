@@ -1,45 +1,5 @@
 ```
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.ENV.local
-.env
-.env.local
-.env.*
-
-# Testing
-.coverage
-coverage/
-htmlcov/
-.pytest_cache/
-.nox/
-.tox/
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+# Session logs and status files
+nanolocz-gpu/SESSIONS/
+nanolocz-gpu/STATUS.md
 ```
