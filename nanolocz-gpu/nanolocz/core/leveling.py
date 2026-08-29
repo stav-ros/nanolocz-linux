@@ -410,3 +410,32 @@ def batch_level_movie(
     leveled_movie = xp.stack(leveled_frames, axis=0)
     
     return xp.asanyarray(leveled_movie), frame_info
+
+
+def batch_line_leveling(movie, mask=None, context=None):
+    """Vectorized line leveling for a movie using a backend context.
+
+    This is the NL-21 batched kernel seam: the same operation runs through
+    NumPy or CuPy without Python-level iteration over frames.
+    """
+    from nanolocz.gpu.backend import BackendContext
+
+    context = context or BackendContext()
+    xp = context.xp
+    data = context.array(movie)
+    if data.ndim != 3:
+        raise ValueError(f"Expected 3D movie, got {data.ndim}D")
+    data = data.astype(context.config.get_dtype(context.is_gpu), copy=False)
+    if mask is None:
+        valid = xp.ones(data.shape, dtype=bool)
+    else:
+        valid = context.array(mask).astype(bool, copy=False)
+        if valid.shape != data.shape[1:]:
+            raise ValueError(f"mask shape {valid.shape} does not match movie frames {data.shape[1:]}")
+        valid = xp.broadcast_to(valid, data.shape)
+    masked = xp.where(valid, data, xp.nan)
+    offsets = xp.nanmedian(masked, axis=2)
+    offsets = xp.where(xp.any(valid, axis=2), offsets, 0.0)
+    reference = offsets[:, 0:1]
+    leveled = data - offsets[:, :, None] + reference[:, :, None]
+    return context.to_cpu(leveled), context.to_cpu(offsets - reference)

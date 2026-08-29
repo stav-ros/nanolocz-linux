@@ -77,7 +77,7 @@ def read_h5jpk(filepath, channel='topography', frame='all'):
         raise FileNotFoundError(f"JPK file not found: {filepath}")
     
     suffix = filepath.suffix.lower()
-    if suffix not in ['.h5-jpk', '.h5', '.jpks']:
+    if suffix not in ['.h5-jpk', '.h5', '.jpks', '.jpk']:
         raise ValueError(
             f"Expected .h5-jpk file, got: {suffix}. "
             f"JPK files typically have .h5-jpk extension."
