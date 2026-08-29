@@ -24,6 +24,31 @@ from nanolocz.gpu.backend import (
     validate_backend_result,
 )
 
+from nanolocz.gpu.detection import (
+    detect_particles_gpu,
+    local_maxima_gpu,
+    min_distance_suppression_gpu,
+    prominence_gpu,
+    statistics_gpu,
+)
+
+from nanolocz.gpu.lafm import (
+    batch_splat_gpu,
+    compute_frc_gpu,
+    frc_resolution,
+    splat_gaussian_gpu,
+    splat_localizations_gpu,
+)
+
+from nanolocz.gpu.simafm import (
+    add_scan_artifacts_gpu,
+    add_shot_noise_gpu,
+    add_thermal_noise_gpu,
+    compute_height_field_gpu,
+    convolve_tip_gpu,
+    simulate_afm_image_gpu,
+)
+
 from nanolocz.gpu.utils import (
     from_gpu,
     get_array_module,
@@ -51,6 +76,25 @@ __all__ = [
     'get_tolerance',
     'assert_close',
     'validate_backend_result',
+    # Detection kernels
+    'local_maxima_gpu',
+    'prominence_gpu',
+    'min_distance_suppression_gpu',
+    'detect_particles_gpu',
+    'statistics_gpu',
+    # LAFM kernels
+    'splat_gaussian_gpu',
+    'splat_localizations_gpu',
+    'compute_frc_gpu',
+    'frc_resolution',
+    'batch_splat_gpu',
+    # SimAFM kernels
+    'compute_height_field_gpu',
+    'convolve_tip_gpu',
+    'add_thermal_noise_gpu',
+    'add_shot_noise_gpu',
+    'add_scan_artifacts_gpu',
+    'simulate_afm_image_gpu',
     # Legacy utils (deprecated - use backend module instead)
     'get_array_module',
     'to_gpu',
