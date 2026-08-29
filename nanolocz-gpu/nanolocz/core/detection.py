@@ -1,235 +1,202 @@
-"""
-Particle detection module for NanoLocz.
+"""Deterministic CPU particle detection and detection statistics.
 
-Ports MATLAB Fast_peaks2D.m and Detector.m functionality to Python.
-Supports both CPU and GPU acceleration.
+The NumPy implementation is the reference behavior for NL-16. Coordinates are
+always returned as ``(x, y)`` even though NumPy indexes images as ``(y, x)``.
 """
+
+from __future__ import annotations
+
+from typing import Any
 
 import numpy as np
 from scipy.ndimage import maximum_filter
 from skimage.measure import profile_line
 
-from nanolocz.gpu.utils import get_array_module, GPUArrayModule
+from nanolocz.core.types import DetectionResult
 
 
-def fast_peaks2d(img, thresh, kernel_size, min_prom=None, use_gpu=False):
-    """
-    Fast 2D peak detection for particle localization.
-    
-    Ports MATLAB Fast_peaks2D.m function.
-    
-    Parameters
-    ----------
-    img : ndarray
-        2D grayscale image
-    thresh : float
-        Intensity threshold for peak detection
-    kernel_size : int
-        Size of local neighborhood for maximum filtering
-    min_prom : float, optional
-        Minimum prominence for peak filtering
-    use_gpu : bool, optional
-        Enable GPU acceleration (default: False)
-        
-    Returns
-    -------
-    locs : ndarray
-        Nx4 array of [x, y, height, prominence]
-        
-    Examples
-    --------
-    >>> import numpy as np
-    >>> img = np.random.rand(100, 100)
-    >>> peaks = fast_peaks2d(img, thresh=0.5, kernel_size=3)
-    >>> print(f"Found {len(peaks)} peaks")
-    """
-    xp = get_array_module(use_gpu)
-    gpu_mod = GPUArrayModule(use_gpu=use_gpu)
-    
-    # Transfer to GPU if enabled
-    img_dev = gpu_mod.to_device(img)
-    
-    kernel_size = kernel_size + 2
-    
-    # Maximum filter to find local maxima
-    max_filtered = gpu_mod.maximum_filter(img_dev, size=kernel_size)
-    local_maxima_mask = (max_filtered == img_dev) & (img_dev > thresh)
-    
-    # Exclude edge pixels
-    h, w = img_dev.shape
-    edge_margin = 2
-    local_maxima_mask[:edge_margin, :] = False
-    local_maxima_mask[-edge_margin:, :] = False
-    local_maxima_mask[:, :edge_margin] = False
-    local_maxima_mask[:, -edge_margin:] = False
-    
-    # Get coordinates and heights
-    y_coords, x_coords = xp.where(local_maxima_mask)
-    peak_heights = img_dev[local_maxima_mask]
-    
-    if len(x_coords) == 0:
-        return xp.array([]).reshape(0, 4)
-    
-    locs = xp.column_stack([x_coords, y_coords, peak_heights])
-    
-    # Add prominence calculation if requested
-    if min_prom is not None and min_prom > 0:
-        # Need to calculate on CPU for now (profile_line not in CuPy)
-        locs_cpu = gpu_mod.from_device(locs)
-        img_cpu = gpu_mod.from_device(img_dev)
-        peaks_cpu = locs_cpu[:, :2]
-        heights_cpu = locs_cpu[:, 2]
-        
-        prominences = _calculate_prominence(img_cpu, peaks_cpu, heights_cpu)
-        keep = prominences > min_prom
-        locs = xp.column_stack([locs[keep, :3], xp.asarray(prominences[keep])])
-    else:
-        prominences = xp.zeros(len(x_coords))
-        locs = xp.column_stack([locs, prominences])
-    
-    # Return to CPU
-    return gpu_mod.from_device(locs)
+def _validate_image(img: Any) -> np.ndarray:
+    image = np.asarray(img, dtype=np.float64)
+    if image.ndim != 2:
+        raise ValueError(f"image must be 2D, got {image.ndim}D")
+    if image.size == 0:
+        raise ValueError("image must not be empty")
+    return np.nan_to_num(image, nan=-np.inf)
 
 
-def _calculate_prominence(img, peaks, heights):
-    """
-    Calculate peak prominence (similar to MATLAB impofile approach).
-    
-    Parameters
-    ----------
-    img : ndarray
-        2D grayscale image
-    peaks : ndarray
-        Nx2 array of [x, y] coordinates
-    heights : ndarray
-        N array of peak heights
-        
-    Returns
-    -------
-    prominences : ndarray
-        N array of prominence values
-    """
-    n_peaks = len(peaks)
-    prominences = np.zeros(n_peaks)
-    
-    for j in range(n_peaks):
-        # Calculate distances to all other peaks
-        dists = np.sqrt(np.sum((peaks - peaks[j])**2, axis=1))
-        
-        # Sort by distance
-        order = np.argsort(dists)
-        
-        # Find closest higher peak
-        higher = heights[order] > heights[j]
-        if np.any(higher):
-            first_higher_idx = np.where(higher)[0][0]
-            neighbor_idx = order[first_higher_idx]
-            
-            # Sample intensity profile between peaks
-            profile = profile_line(
-                img, 
-                peaks[j], 
-                peaks[neighbor_idx]
-            )
-            prominences[j] = heights[j] - np.min(profile)
+def _validate_mask(mask: Any, shape: tuple[int, int]) -> np.ndarray:
+    if mask is None:
+        return np.ones(shape, dtype=bool)
+    value = np.asarray(mask)
+    if value.shape != shape:
+        raise ValueError(f"mask shape {value.shape} does not match image shape {shape}")
+    if value.dtype != bool:
+        raise ValueError("mask must have boolean dtype")
+    return value
+
+
+def _prominence(image: np.ndarray, peaks: np.ndarray, heights: np.ndarray) -> np.ndarray:
+    """Estimate prominence along the line to the nearest higher peak."""
+    values = np.zeros(len(peaks), dtype=np.float64)
+    for index, peak in enumerate(peaks):
+        higher = np.flatnonzero(heights > heights[index])
+        if higher.size:
+            distances = np.sum((peaks[higher] - peak) ** 2, axis=1)
+            # lexsort makes equal-distance choices deterministic.
+            nearest = higher[np.lexsort((highter := higher, distances))[0]]
+            profile = profile_line(image, peak[::-1], peaks[nearest][::-1], mode="nearest")
+            values[index] = heights[index] - float(np.min(profile))
         else:
-            prominences[j] = heights[j]
-    
-    return prominences
+            finite = image[np.isfinite(image)]
+            values[index] = heights[index] - float(np.min(finite)) if finite.size else 0.0
+    return np.maximum(values, 0.0)
 
 
-def detect_particles(img, method='direct', ref_img=None, 
-                     thresh=None, kernel_size=5, min_prom=None,
-                     rotation_angles=None, use_gpu=False):
+def _select_min_distance(peaks: np.ndarray, heights: np.ndarray, min_distance: float) -> np.ndarray:
+    """Greedily retain strongest peaks separated by ``min_distance`` pixels."""
+    if min_distance <= 0 or len(peaks) < 2:
+        return np.arange(len(peaks))
+    order = np.lexsort((peaks[:, 0], peaks[:, 1], -heights))
+    kept: list[int] = []
+    minimum_squared = float(min_distance) ** 2
+    for candidate in order:
+        if all(np.sum((peaks[candidate] - peaks[index]) ** 2) >= minimum_squared for index in kept):
+            kept.append(int(candidate))
+    return np.asarray(sorted(kept), dtype=int)
+
+
+def fast_peaks2d(
+    img: Any,
+    thresh: float,
+    kernel_size: int,
+    min_prom: float | None = None,
+    use_gpu: bool = False,
+    *,
+    mask: Any = None,
+    min_distance: float = 0.0,
+) -> np.ndarray:
+    """Find local maxima, returning columns ``x, y, height, prominence``.
+
+    ``use_gpu`` is accepted for API compatibility; this CPU reference path is
+    intentionally deterministic and is the implementation used for parity.
     """
-    Particle detection with multiple modes.
-    
-    Ports MATLAB Detector.m functionality.
-    
-    Parameters
-    ----------
-    img : ndarray
-        2D grayscale image or image stack
-    method : str
-        Detection method: 'direct' or 'crosscorr'
-    ref_img : ndarray, optional
-        Reference image for cross-correlation mode
-    thresh : float, optional
-        Intensity threshold (auto-calculated if None)
-    kernel_size : int
-        Size of local neighborhood for peak detection
-    min_prom : float, optional
-        Minimum prominence for peak filtering
-    rotation_angles : array, optional
-        Angles to test for rotation search (crosscorr mode)
-    use_gpu : bool
-        Enable GPU acceleration
-        
-    Returns
-    -------
-    detections : dict
-        Dictionary containing:
-        - 'locs': Nx4 array of [x, y, height, prominence]
-        - 'scores': Detection scores (crosscorr mode only)
-    """
-    if method == 'direct':
-        # Direct peak picking
-        if thresh is None:
-            thresh = np.mean(img) + 2 * np.std(img)
-        
-        locs = fast_peaks2d(img, thresh, kernel_size, min_prom, use_gpu)
-        
-        return {
-            'locs': locs,
-            'scores': None
-        }
-    
-    elif method == 'crosscorr':
+    del use_gpu
+    image = _validate_image(img)
+    allowed = _validate_mask(mask, image.shape)
+    if not np.isscalar(thresh) or not np.isfinite(thresh):
+        raise ValueError("thresh must be a finite scalar")
+    if not isinstance(kernel_size, (int, np.integer)) or kernel_size < 1:
+        raise ValueError("kernel_size must be a positive integer")
+    if min_prom is not None and (not np.isscalar(min_prom) or not np.isfinite(min_prom)):
+        raise ValueError("min_prom must be a finite scalar")
+
+    size = max(1, int(kernel_size))
+    if size % 2 == 0:
+        size += 1
+    candidate_mask = allowed & np.isfinite(image) & (image >= float(thresh))
+    local_maxima = candidate_mask & (maximum_filter(image, size=size, mode="nearest") == image)
+    y, x = np.where(local_maxima)
+    if not len(x):
+        return np.empty((0, 4), dtype=np.float64)
+
+    # y then x is the stable image-order contract.
+    order = np.lexsort((x, y))
+    peaks = np.column_stack((x[order], y[order])).astype(np.float64)
+    heights = image[y[order], x[order]]
+    prominences = _prominence(image, peaks, heights)
+    keep = _select_min_distance(peaks, heights, float(min_distance))
+    if min_prom is not None:
+        keep = keep[prominences[keep] >= float(min_prom)]
+    return np.column_stack((peaks[keep], heights[keep], prominences[keep]))
+
+
+def _statistics(image: np.ndarray, coordinates: np.ndarray, radius: int = 2) -> dict[str, np.ndarray]:
+    stats = {name: np.empty(len(coordinates), dtype=np.float64) for name in ("area", "volume", "eccentricity")}
+    for index, (x_value, y_value) in enumerate(coordinates):
+        x, y = int(round(x_value)), int(round(y_value))
+        y0, y1 = max(0, y - radius), min(image.shape[0], y + radius + 1)
+        x0, x1 = max(0, x - radius), min(image.shape[1], x + radius + 1)
+        region = image[y0:y1, x0:x1]
+        border = np.concatenate((region[0, :], region[-1, :], region[:, 0], region[:, -1]))
+        background = float(np.median(border)) if border.size else 0.0
+        signal = np.maximum(region - background, 0.0)
+        stats["area"][index] = float(np.count_nonzero(signal > 0))
+        stats["volume"][index] = float(np.sum(signal))
+        yy, xx = np.indices(region.shape, dtype=np.float64)
+        weight = signal.ravel()
+        if weight.sum() <= 0 or len(weight) < 2:
+            stats["eccentricity"][index] = 0.0
+            continue
+        coords = np.column_stack((xx.ravel(), yy.ravel()))
+        mean = np.average(coords, axis=0, weights=weight)
+        centered = coords - mean
+        covariance = (centered * weight[:, None]).T @ centered / float(weight.sum())
+        eigenvalues = np.clip(np.linalg.eigvalsh(covariance), 0.0, None)
+        major, minor = float(eigenvalues[-1]), float(eigenvalues[0])
+        stats["eccentricity"][index] = np.sqrt(max(0.0, 1.0 - minor / major)) if major else 0.0
+    return stats
+
+
+def detect_particles(
+    img: Any,
+    method: str = "direct",
+    ref_img: Any = None,
+    thresh: float | None = None,
+    kernel_size: int = 5,
+    min_prom: float | None = None,
+    rotation_angles: Any = None,
+    use_gpu: bool = False,
+    *,
+    mask: Any = None,
+    min_distance: float = 0.0,
+) -> DetectionResult:
+    """Detect particles and return typed coordinates, mask, and statistics."""
+    image = _validate_image(img)
+    allowed = _validate_mask(mask, image.shape)
+    if method == "direct":
+        threshold = float(np.mean(image[np.isfinite(image)]) + 2 * np.std(image[np.isfinite(image)])) if thresh is None else thresh
+        peaks = fast_peaks2d(image, threshold, kernel_size, min_prom, use_gpu, mask=allowed, min_distance=min_distance)
+        angle = None
+    elif method == "crosscorr":
         if ref_img is None:
             raise ValueError("ref_img required for crosscorr method")
-        
-        # Cross-correlation based detection with rotation search
+        reference = _validate_image(ref_img)
+        deviation = float(np.std(reference))
+        if deviation == 0:
+            raise ValueError("ref_img must have non-zero variance")
+        from scipy.ndimage import rotate
         from scipy.signal import correlate2d
-        
-        best_score = -np.inf
-        best_locs = None
-        best_angle = None
-        
-        angles_to_test = rotation_angles if rotation_angles is not None else [0]
-        
-        for angle in angles_to_test:
-            if angle != 0:
-                from scipy.ndimage import rotate
-                ref_rotated = rotate(ref_img, angle, reshape=False)
-            else:
-                ref_rotated = ref_img
-            
-            # Normalize reference
-            ref_norm = (ref_rotated - np.mean(ref_rotated)) / np.std(ref_rotated)
-            
-            # Cross-correlation
-            corr = correlate2d(img, ref_norm, mode='same', boundary='symm')
-            
-            # Detect peaks in correlation map
-            if thresh is None:
-                auto_thresh = np.mean(corr) + 3 * np.std(corr)
-            else:
-                auto_thresh = thresh
-            
-            locs = fast_peaks2d(corr, auto_thresh, kernel_size, min_prom, use_gpu)
-            
-            if len(locs) > 0:
-                score = np.max(locs[:, 2])
-                if score > best_score:
-                    best_score = score
-                    best_locs = locs
-                    best_angle = angle
-        
-        return {
-            'locs': best_locs,
-            'scores': best_score,
-            'angle': best_angle
-        }
-    
+        angles = [0.0] if rotation_angles is None else [float(value) for value in rotation_angles]
+        best: tuple[np.ndarray, float, float] | None = None
+        for candidate_angle in angles:
+            rotated = rotate(reference, candidate_angle, reshape=False) if candidate_angle else reference
+            normalized = (rotated - np.mean(rotated)) / float(np.std(rotated))
+            correlation = correlate2d(image, normalized, mode="same", boundary="symm")
+            threshold = float(np.mean(correlation) + 3 * np.std(correlation)) if thresh is None else thresh
+            candidate = fast_peaks2d(correlation, threshold, kernel_size, min_prom, False, mask=allowed, min_distance=min_distance)
+            score = float(np.max(candidate[:, 2])) if len(candidate) else -np.inf
+            if best is None or score > best[1]:
+                best = (candidate, score, candidate_angle)
+        peaks, _, angle = best if best is not None else (np.empty((0, 4)), -np.inf, 0.0)
     else:
         raise ValueError(f"Unknown method: {method}")
+
+    coordinates = peaks[:, :2].astype(np.float64, copy=False)
+    intensities = peaks[:, 2].astype(np.float64, copy=False)
+    scores = peaks[:, 3].astype(np.float64, copy=False)
+    output_mask = np.zeros(image.shape, dtype=bool)
+    if len(coordinates):
+        output_mask[coordinates[:, 1].astype(int), coordinates[:, 0].astype(int)] = True
+    return DetectionResult(
+        coordinates=coordinates,
+        intensities=intensities,
+        scores=scores,
+        mask=output_mask,
+        statistics=_statistics(image, coordinates),
+        angle=angle,
+    )
+
+
+# Kept private-name compatibility for callers of the prototype.
+def _calculate_prominence(img: Any, peaks: np.ndarray, heights: np.ndarray) -> np.ndarray:
+    return _prominence(_validate_image(img), np.asarray(peaks, dtype=np.float64), np.asarray(heights, dtype=np.float64))
