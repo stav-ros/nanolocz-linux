@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-08-29
-Current phase: Phase 2 — CPU core processing (COMPLETE)
-Current card: NL-16
-Status: done — deterministic detection, prominence, masks, and statistics implemented; NL-17 is verified and ready for acceptance review
+Current phase: Phase 2 — GPU foundation (COMPLETE)
+Current card: NL-20
+Status: done — NumPy/CuPy backend switch and precision policy implemented with comprehensive tests
 
 ## Progress
 
@@ -18,8 +18,9 @@ Status: done — deterministic detection, prominence, masks, and statistics impl
 | NL-15 | Filters, masks, scar removal, and profiles | **done** | `nanolocz/core/filters.py`; Gaussian/median/uniform filters; gradient/Laplacian; masks; scar removal; morphological ops; 142/142 tests green; SESSIONS/2026-08-28-NL-14-15.md |
 | NL-16 | Detection, statistics, and masks | done | `nanolocz/core/detection.py`; 9 focused tests; 165/165 full Python tests green; typed `DetectionResult`; masks, prominence, min-distance, and statistics |
 | NL-17 | Deterministic single-particle tracking | done | `nanolocz/core/tracking.py`; `tests/test_tracking_nl17.py`; included in 165/165 full Python tests; acceptance documentation review pending |
+| NL-20 | NumPy/CuPy backend switch and precision policy | done | `nanolocz/gpu/backend.py`; `tests/test_backend_nl20.py`; Backend/BackendContext/PrecisionMode/TolerancePolicy; float64 CPU reference; GPU tolerance rules; 35+ backend consistency tests; SESSIONS/2026-08-29-NL-20.md |
 | NL-12–NL-13 | Additional file openers | not_started | ready to start |
-| NL-20–NL-24 | GPU backend and kernels | not_started | blocked by P1 |
+| NL-21–NL-24 | GPU kernels | not_started | unblocked by NL-20 |
 | NL-30–NL-37 | LAFM+ science | not_started | blocked by core/GPU work |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-50–NL-54 | Simulation bridge | not_started | **unblocked** — can start NL-50 |
@@ -95,3 +96,52 @@ A task may move to `done` only when:
 - a session handoff exists under `SESSIONS/`.
 
 Allowed states: `not_started`, `in_progress`, `blocked`, `done`.
+
+### NL-20 Deliverables (NumPy/CuPy Backend Switch and Precision Policy)
+
+#### Core Implementation (`nanolocz/gpu/backend.py`)
+- **Backend enum**: CPU, CUDA, AUTO selection with auto-detection
+- **PrecisionMode enum**: REFERENCE (float64), MIXED (float32 GPU/float64 CPU), HIGH (float64 everywhere)
+- **BackendConfig**: Configuration dataclass with backend, precision, device_id, memory_limit, allow_downcast
+- **BackendContext**: Execution context managing array creation, transfer, and computation
+  - `xp` property for numpy/cupy module access
+  - Array allocation methods: `zeros`, `ones`, `empty`, `allocate`, `array`
+  - Transfer methods: `to_cpu`, `to_backend`
+  - Utility methods: `copy`, `astype`, `get_stream`
+- **TolerancePolicy**: Dataclass for numerical comparison tolerances
+  - `CPU_REFERENCE_TOLERANCE`: rtol=1e-10, atol=1e-12 (strictest, for golden fixtures)
+  - `CPU_STANDARD_TOLERANCE`: rtol=1e-5, atol=1e-8 (standard CPU float64)
+  - `GPU_FLOAT32_TOLERANCE`: rtol=1e-3, atol=1e-5 (GPU single precision)
+  - `GPU_FLOAT64_TOLERANCE`: rtol=1e-7, atol=1e-10 (GPU double precision)
+  - `CROSS_BACKEND_TOLERANCE`: rtol=1e-4, atol=1e-6 (CPU vs GPU comparison)
+- **assert_close**: Unified numerical comparison function supporting numpy/cupy arrays
+- **validate_backend_result**: Result validation helper (shape, dtype, finite checks)
+- **Convenience functions**: `get_backend_context`, `create_reference_context`, `create_gpu_context`
+
+#### Test Coverage (`tests/test_backend_nl20.py`)
+- TestBackendConfig: 7 tests for configuration and resolution
+- TestTolerancePolicy: 10 tests for tolerance definitions and selection
+- TestBackendContext: 12 tests for context creation and array operations
+- TestAssertClose: 7 tests for numerical comparison
+- TestValidateBackendResult: 5 tests for result validation
+- TestBackendIntegration: 4 tests for integration scenarios
+- TestBackendEdgeCases: 5 tests for edge cases
+- Total: 50+ test cases (some skipped when CuPy unavailable)
+
+#### Float64 CPU Reference Behavior
+- `create_reference_context()` returns CPU backend with REFERENCE precision
+- All reference computations use float64 dtype
+- Strictest tolerance (1e-10/1e-12) for golden fixture generation
+- Suitable for high-accuracy scientific validation
+
+#### GPU Precision/Tolerance Rules
+- MIXED mode: float32 on GPU, float64 on CPU (default for performance)
+- HIGH mode: float64 everywhere (for accuracy-critical paths)
+- Tolerance automatically selected based on backend + precision combination
+- Cross-backend tolerance for CPU/GPU result comparison
+
+#### Integration with Existing Code
+- Updated `nanolocz/gpu/__init__.py` to export new backend API
+- Legacy `utils.py` functions preserved for backward compatibility
+- Protocols defined for type checking (BackendArray, GPUArray)
+
