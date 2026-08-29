@@ -166,18 +166,39 @@ def open_nanolocz(
         data, metadata = read_gwy(path)
         return _ReadOnlyFileWrapper(data, metadata, path)
     
-    elif suffix in ('.h5-jpk', '.jpks'):
+    elif suffix in ('.h5-jpk', '.jpks', '.jpk'):
         # JPK HDF5 format - read-only
         if mode != 'r':
             raise ValueError("H5-JPK format only supports read-only mode")
-        from nanolocz.formats import read_h5jpk
-        data, metadata = read_h5jpk(path)
+        from nanolocz.formats import read_jpk
+        data, metadata = read_jpk(path)
         return _ReadOnlyFileWrapper(data, metadata, path)
     
+    elif suffix == '.spm':
+        if mode != 'r':
+            raise ValueError("SPM format only supports read-only mode")
+        from nanolocz.formats import read_spm
+        data, metadata = read_spm(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
+
+    elif suffix == '.ibw':
+        if mode != 'r':
+            raise ValueError("IBW format only supports read-only mode")
+        from nanolocz.formats import read_ibw
+        data, metadata = read_ibw(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
+
+    elif suffix == '.asd':
+        if mode != 'r':
+            raise ValueError("ASD format only supports read-only mode")
+        from nanolocz.formats import read_asd
+        data, metadata = read_asd(path)
+        return _ReadOnlyFileWrapper(data, metadata, path)
+
     else:
         raise ValueError(
             f"Unsupported file format: {suffix}\n"
-            f"Supported formats: .zarr, .h5, .hdf5, .tif, .tiff\n"
+            f"Supported formats: .zarr, .h5, .hdf5, .tif, .tiff, .gwy, .h5-jpk, .jpk, .spm, .ibw\n"
             f"Path: {path}"
         )
 

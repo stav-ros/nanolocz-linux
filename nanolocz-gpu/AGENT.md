@@ -6,6 +6,12 @@ Read this file before changing anything in this port.
 Build a Linux-first, MATLAB-free Python/CUDA port of NanoLocz while preserving
 scientific behavior, a CPU reference path, and reproducible handoffs.
 
+The current BioAFM-inspired scope is intentionally small: import PDB atom
+coordinates, render a coarse AFM height image with a conical tip, estimate a
+usable tip radius from an AFM image, and perform rough tip/translation fitting.
+Do not expand this into full molecular viewing, flexible fitting, electrostatics,
+or BioAFMviewer file compatibility without a new approved task card.
+
 ## Source of truth
 - `STATUS.md` is the current project state and next-card pointer.
 - `SPEC/` defines contracts. Do not silently change a spec during implementation.
@@ -23,6 +29,8 @@ scientific behavior, a CPU reference path, and reproducible handoffs.
 7. Run `python tools/project_check.py` before handoff. A green check is required.
 8. Update `STATUS.md` and write a session note after each card.
 9. One focused commit per completed card. Stop when scope creeps or the card is green.
+10. Treat `nanolocz/simafm/` as a deliberately approximate visual workflow;
+    preserve explicit limitations in tests and documentation.
 
 ## Session start
 ```bash
