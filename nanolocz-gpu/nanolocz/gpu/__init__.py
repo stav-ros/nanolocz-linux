@@ -56,6 +56,15 @@ from nanolocz.gpu.utils import (
     to_gpu,
 )
 
+try:
+    from nanolocz.gpu.classification import (
+        reduce_dimensions_pca_gpu,
+        classify_particles_gpu,
+    )
+    _HAS_CLASSIFICATION_GPU = True
+except ImportError:
+    _HAS_CLASSIFICATION_GPU = False
+
 __all__ = [
     # Backend management
     'Backend',
@@ -102,4 +111,8 @@ __all__ = [
     'GPUArrayModule',
     # Availability flag
     'CUPY_AVAILABLE',
+    # Classification (GPU-accelerated PCA)
+    'reduce_dimensions_pca_gpu',
+    'classify_particles_gpu',
+    '_HAS_CLASSIFICATION_GPU',
 ]
