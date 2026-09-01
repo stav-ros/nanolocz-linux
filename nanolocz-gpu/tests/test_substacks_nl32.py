@@ -820,7 +820,7 @@ class TestSubstacksIntegration:
         frames = [Frame(data=movie[i], meta=sample_meta, frame_index=i) for i in range(n_frames)]
         
         # Step 1: Detect particles in first frame
-        det_result = detect_particles(frames[0], threshold=0.3)
+        det_result = detect_particles(frames[0].data, threshold=0.3)
         
         if len(det_result.coordinates) > 0:
             xy = [(float(x), float(y)) for x, y in det_result.coordinates]
@@ -842,6 +842,7 @@ class TestSubstacksIntegration:
         """Test integration with tracking module."""
         from nanolocz.core.tracking import track_particles
         from nanolocz.core.detection import detect_particles
+        from nanolocz.core.types import LocalizedParticle
         
         # Create movie with moving particles
         n_frames = 10
@@ -855,28 +856,31 @@ class TestSubstacksIntegration:
         
         frames = [Frame(data=movie[i], meta=sample_meta, frame_index=i) for i in range(n_frames)]
         
-        # Detect in all frames
-        all_locs = []
+        # Detect in all frames and build per-frame localization lists
+        all_locs_per_frame = []
         for frame in frames:
-            result = detect_particles(frame, threshold=0.3)
+            result = detect_particles(frame.data, threshold=0.3)
+            frame_locs = []
             if len(result.coordinates) > 0:
                 for x, y in result.coordinates:
-                    all_locs.append((float(x), float(y)))
-                    all_locs.append(frame.frame_index)
+                    frame_locs.append(LocalizedParticle(
+                        x=float(x), y=float(y), 
+                        intensity=1.0, frame=frame.frame_index
+                    ))
+            all_locs_per_frame.append(frame_locs)
         
-        if len(all_locs) > 0:
-            xy = all_locs[::2]
-            frame_idx = all_locs[1::2]
-            frame_idx = [int(f) for f in frame_idx]
+        # Track particles
+        tracks = track_particles(all_locs_per_frame)
+        
+        # Extract substacks for tracked particles
+        if len(tracks) > 0:
+            # Build localizations from first track
+            track = tracks[0]
+            xy = [(p.x, p.y) for p in track.particles]
+            frame_idx = [p.frame for p in track.particles]
             locs = Localizations(xy=xy, frame_index=frame_idx)
             
-            # Track particles
-            tracks = track_particles(locs, n_frames)
-            
-            # Extract substacks for tracked particles
-            if len(tracks.tracks) > 0:
-                # Use first track's localizations
-                substack = extract_particle_substacks(
-                    frames, locs, patch_size=(16, 16)
-                )
-                assert substack.n_particles > 0
+            substack = extract_particle_substacks(
+                frames, locs, patch_size=(16, 16)
+            )
+            assert substack.n_particles > 0
