@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-08-29
-Current phase: Phase 3 — LAFM+ (NL-31 COMPLETE)
-Current card: NL-31
-Status: done — NL-31 directional deskar filter implementation complete with 23 tests passing
+Current phase: Phase 3 — LAFM+ (NL-33 COMPLETE)
+Current card: NL-34
+Status: in_progress — NL-33 PCA to HDBSCAN grouping complete with 31 tests passing; starting NL-34 in-class alignment and averaging
 
 ## Progress
 
@@ -27,9 +27,10 @@ Status: done — NL-31 directional deskar filter implementation complete with 23
 | NL-24 | Simulation AFM kernels | done | `nanolocz/gpu/simafm.py`; `tests/test_simafm_gpu_nl24.py`; compute_height_field_gpu, convolve_tip_gpu, noise/artifact functions, simulate_afm_image_gpu; 26 tests; SESSIONS/2026-08-29-NL-24.md |
 | NL-30 | Per-frame drift estimation | done | `nanolocz/core/drift.py`; `tests/test_drift_nl30.py`; estimate_drift_xcorr, estimate_drift_particles, correct_drift; 28 passed + 8 skipped (CuPy); SESSIONS/2026-08-29-NL-30.md |
 | NL-31 | Directional deskar filter | **done** | `nanolocz/core/deskar.py`; `tests/test_deskar_nl31.py`; directional_deskar, remove_scan_lines, anisotropic_diffusion, process_movie_deskar; 23 passed + 6 skipped (CuPy); SPEC/NL-31-directional-deskar.md; SESSIONS/2026-08-29-NL-31.md |
+| NL-32 | Particle substack extraction | **done** | `nanolocz/core/substacks.py`; `tests/test_substacks_nl32.py`; extract_particle_substacks, extract_drift_corrected_substacks, batch_extract_substacks, create_gaussian_mask, apply_binary_mask; 28 passed + 8 skipped (CuPy); SPEC/NL-32-particle-substacks.md; SESSIONS/2026-08-29-NL-32.md |
+| NL-33 | PCA to HDBSCAN grouping | **done** | `nanolocz/core/classification.py`; `nanolocz/gpu/classification.py`; `tests/test_classification_nl33.py`; classify_particles, reduce_dimensions_pca, cluster_hdbscan, ClassificationResult, plot_scree, plot_clusters_2d; 31 passed + 1 skipped (CuPy); SPEC/NL-33-pca-hdbscan.md; SESSIONS/2026-08-29-NL-33.md |
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
-| NL-32 | Particle substack extraction | in_progress | SPEC/NL-32-particle-substacks.md created; SESSIONS/2026-08-29-NL-32.md handoff ready; depends on NL-16 ✓, NL-30 ✓ |
-| NL-33–NL-37 | LAFM+ science | not_started | blocked by NL-32 |
+| NL-34 | In-class alignment and averaging | in_progress | SPEC/NL-34-inclass-alignment.md pending; depends on NL-33 ✓ |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
@@ -82,20 +83,20 @@ Status: done — NL-31 directional deskar filter implementation complete with 23
 
 ## Current action
 
-NL-32 is now in progress. Specification and session handoff documents have been created. Implementation of particle substack extraction is ready to begin.
+NL-34 is now in progress. Specification document SPEC/NL-34-inclass-alignment.md needs to be created. Implementation of in-class alignment and averaging for particle substacks is ready to begin.
 
 **Current status**:
 - Phase 1 (CPU Core): COMPLETE (NL-01 through NL-17)
 - Phase 2 (GPU Foundation): COMPLETE (NL-20, NL-21, NL-22, NL-23, NL-24, NL-30)
-- Phase 3 (LAFM+): STARTING with NL-32
+- Phase 3 (LAFM+): IN PROGRESS with NL-34 (NL-31, NL-32, NL-33 complete)
 
 **Active card**:
-- NL-32: Particle substack extraction — SPEC and SESSIONS documents created; implementation pending
+- NL-34: In-class alignment and averaging — SPEC pending; depends on NL-33 ✓, NL-32 ✓
 
-**Next cards after NL-32**:
-- NL-31: Directional deskar filter (depends on NL-15 ✓ — unblocked, can proceed in parallel)
-- NL-33: PCA to HDBSCAN grouping (depends on NL-32)
-- NL-50+: Simulation bridge extensions (NL-50 minimal workflow complete)
+**Next cards after NL-34**:
+- NL-35: Tip estimation and regularized deconvolution (depends on NL-34, NL-24)
+- NL-36: Dynamics traces, transitions, and dwell times (depends on NL-33, NL-17)
+- NL-37: Napari replay hooks (depends on NL-34, NL-36)
 
 The verified workflows now support:
 ```

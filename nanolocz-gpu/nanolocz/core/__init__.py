@@ -14,6 +14,16 @@ from nanolocz.core.deskar import (
     anisotropic_diffusion,
     process_movie_deskar,
 )
+from nanolocz.core.classification import (
+    classify_particles,
+    reduce_dimensions_pca,
+    cluster_hdbscan,
+    select_n_components,
+    ClassificationResult,
+    plot_scree,
+    plot_clusters_2d,
+    plot_cluster_sizes,
+)
 from nanolocz.core.types import DetectionResult, Frame, Localizations, Meta, ParticleStack
 
 __all__ = [
@@ -22,6 +32,7 @@ __all__ = [
     "Meta",
     "Localizations",
     "ParticleStack",
+    "ClassificationResult",
     "detect_particles",
     "fast_peaks2d",
     "estimate_drift_xcorr",
@@ -35,4 +46,11 @@ __all__ = [
     "remove_scan_lines",
     "anisotropic_diffusion",
     "process_movie_deskar",
+    "classify_particles",
+    "reduce_dimensions_pca",
+    "cluster_hdbscan",
+    "select_n_components",
+    "plot_scree",
+    "plot_clusters_2d",
+    "plot_cluster_sizes",
 ]

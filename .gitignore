@@ -9,16 +9,26 @@ env/
 venv/
 .venv/
 .ENV
+.ENV.local
+*.env
+*.env.local
 .env
+.env.local
 .env.*
-.venv.bak/
-.ENV.bak/
-.python-version
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
 .pytest_cache/
 .mypy_cache/
-.coverage
-htmlcov/
-.coverage.*
+.hypothesis/
 
 # Distribution / packaging
 .Python
@@ -34,35 +44,14 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Testing
-.pytest_cache/
-.nosetests
-coverage/
-htmlcov/
-.coverage.*
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+nosetests.xml
+coverage.xml
 *.log
-
-# Environment
-.env
-.env.local
-*.env
+.gitignore
 ```
