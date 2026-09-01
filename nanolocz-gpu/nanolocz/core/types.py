@@ -164,8 +164,12 @@ class ParticleStack:
     
     @property
     def n_particles(self) -> int:
-        """Return number of particles."""
-        return len(self.centers_xy)
+        """Return number of unique particles (not total detections)."""
+        if len(self.centers_xy) == 0:
+            return 0
+        # Count unique particle centers
+        unique_centers = set(tuple(c) for c in self.centers_xy)
+        return len(unique_centers)
 
 
 # ============================================================================
