@@ -255,9 +255,8 @@ def extract_particle_substacks(
             centers_list.append((x, y))
             frame_indices.append(frame_idx)
     
-    # Squeeze if single frame per particle
-    if max_frames == 1:
-        substacks = substacks[:, 0, :, :]  # (n_particles, patch_h, patch_w)
+    # Ensure 4D output for storage compatibility: (n_particles, max_frames, patch_h, patch_w)
+    # Do NOT squeeze even if single frame - keep 4D for save_particle_stacks compatibility
     
     return ParticleStack(
         data=substacks,

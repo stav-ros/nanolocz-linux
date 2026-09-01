@@ -508,19 +508,18 @@ class NanoLoczStore:
         Particle stacks are stored as 4D array:
         (n_particles, n_frames, box_size, box_size)
         
-        For 3D input (n_particles, box_size, box_size), adds a singleton
-        frame dimension to make it 4D.
+        Data must already be 4D. 3D data will be rejected.
         
         Chunking: (1, n_frames, box_size, box_size) for per-particle access.
         """
         data = np.asarray(stack.data)
         
-        # Ensure 4D: (n_particles, n_frames, box_size, box_size)
-        if data.ndim == 3:
-            # Add singleton frame dimension: (n_p, H, W) -> (n_p, 1, H, W)
-            data = data[:, np.newaxis, :, :]
-        elif data.ndim != 4:
-            raise ValueError(f"Particle stack data must be 3D or 4D, got {data.ndim}D")
+        # Validate that data is 4D: (n_particles, n_frames, box_size, box_size)
+        if data.ndim != 4:
+            raise ValueError(
+                f"Particle stack data must be 4D (n_particles, n_frames, height, width), "
+                f"got {data.ndim}D with shape {data.shape}"
+            )
         
         # Chunk by particle
         chunks = (1, data.shape[1], data.shape[2], data.shape[3])
