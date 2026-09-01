@@ -8,6 +8,12 @@ from nanolocz.core.substacks import (
     create_gaussian_mask,
     batch_extract_substacks,
 )
+from nanolocz.core.deskar import (
+    directional_deskar,
+    remove_scan_lines,
+    anisotropic_diffusion,
+    process_movie_deskar,
+)
 from nanolocz.core.types import DetectionResult, Frame, Localizations, Meta, ParticleStack
 
 __all__ = [
@@ -25,4 +31,8 @@ __all__ = [
     "extract_drift_corrected_substacks",
     "create_gaussian_mask",
     "batch_extract_substacks",
+    "directional_deskar",
+    "remove_scan_lines",
+    "anisotropic_diffusion",
+    "process_movie_deskar",
 ]

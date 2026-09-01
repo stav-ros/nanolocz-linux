@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-08-29
-Current phase: Phase 3 — LAFM+ (STARTING)
-Current card: NL-32
-Status: in_progress — NL-32 particle substack extraction SPEC and session handoff created; dependencies NL-16 and NL-30 complete
+Current phase: Phase 3 — LAFM+ (NL-31 COMPLETE)
+Current card: NL-31
+Status: done — NL-31 directional deskar filter implementation complete with 23 tests passing
 
 ## Progress
 
@@ -26,9 +26,10 @@ Status: in_progress — NL-32 particle substack extraction SPEC and session hand
 | NL-23 | LAFM splat kernel and FRC | done | `nanolocz/gpu/lafm.py`; `tests/test_lafm_gpu_nl23.py`; splat_gaussian_gpu, compute_frc_gpu, frc_resolution, batch_splat_gpu; 25 tests; SESSIONS/2026-08-29-NL-23.md |
 | NL-24 | Simulation AFM kernels | done | `nanolocz/gpu/simafm.py`; `tests/test_simafm_gpu_nl24.py`; compute_height_field_gpu, convolve_tip_gpu, noise/artifact functions, simulate_afm_image_gpu; 26 tests; SESSIONS/2026-08-29-NL-24.md |
 | NL-30 | Per-frame drift estimation | done | `nanolocz/core/drift.py`; `tests/test_drift_nl30.py`; estimate_drift_xcorr, estimate_drift_particles, correct_drift; 28 passed + 8 skipped (CuPy); SESSIONS/2026-08-29-NL-30.md |
+| NL-31 | Directional deskar filter | **done** | `nanolocz/core/deskar.py`; `tests/test_deskar_nl31.py`; directional_deskar, remove_scan_lines, anisotropic_diffusion, process_movie_deskar; 23 passed + 6 skipped (CuPy); SPEC/NL-31-directional-deskar.md; SESSIONS/2026-08-29-NL-31.md |
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
 | NL-32 | Particle substack extraction | in_progress | SPEC/NL-32-particle-substacks.md created; SESSIONS/2026-08-29-NL-32.md handoff ready; depends on NL-16 ✓, NL-30 ✓ |
-| NL-31, NL-33–NL-37 | LAFM+ science | not_started | blocked by NL-32 |
+| NL-33–NL-37 | LAFM+ science | not_started | blocked by NL-32 |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
