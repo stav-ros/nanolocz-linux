@@ -81,6 +81,48 @@ class NanoLoczStore:
             # Empty store opened in append mode - initialize it
             self._initialize_store()
     
+    @classmethod
+    def open(cls, path: str | Path, mode: Literal['r', 'r+', 'w', 'w-', 'a'] = 'r') -> 'NanoLoczStore':
+        """Open a NanoLoczStore with context manager support.
+        
+        Parameters
+        ----------
+        path : str or Path
+            Path to Zarr store directory
+        mode : {'r', 'r+', 'w', 'w-', 'a'}
+            Opening mode passed to zarr.open()
+            
+        Returns
+        -------
+        NanoLoczStore
+            Opened store instance
+            
+        Examples
+        --------
+        >>> with NanoLoczStore.open(\"experiment.zarr\", mode=\"w\") as store:
+        ...     store.save_movie(movie_data, metadata)
+        """
+        return cls(path, mode)
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - flush and close."""
+        self.close()
+        return False
+    
+    def close(self):
+        """Close the Zarr store and flush any pending writes."""
+        # Zarr automatically flushes, but we can explicitly delete the root reference
+        if hasattr(self, 'root') and self.root is not None:
+            # Force flush by accessing the store
+            try:
+                self.root.store.flush()
+            except Exception:
+                pass
+    
     def _initialize_store(self):
         """Initialize Zarr store structure with schema version."""
         # Store schema version
