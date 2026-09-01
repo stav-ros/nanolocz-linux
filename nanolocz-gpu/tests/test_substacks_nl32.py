@@ -390,7 +390,11 @@ class TestMaskedExtraction:
         
         assert substack.n_particles == 1
         # Masked regions should be zero (check corners which are outside circle)
-        assert substack.data[0, 0, 0, 0] == 0  # Corner should be masked
+        # Data shape is (n_particles, H, W) for single-frame or (n_particles, n_frames, H, W)
+        if substack.data.ndim == 4:
+            assert substack.data[0, 0, 0, 0] == 0  # Corner should be masked
+        else:  # 3D
+            assert substack.data[0, 0, 0] == 0  # Corner should be masked
     
     def test_gaussian_mask_creation(self):
         """Test Gaussian mask creation utility."""
@@ -708,7 +712,7 @@ class TestSubstacksIntegration:
         frames = [Frame(data=movie[i], meta=sample_meta, frame_index=i) for i in range(n_frames)]
         
         # Detect particles in first frame
-        result = detect_particles(frames[0], threshold=0.5)
+        result = detect_particles(frames[0].data, threshold=0.5)
         
         if len(result.coordinates) > 0:
             # Convert detection result to localizations
@@ -790,7 +794,7 @@ class TestSubstacksIntegration:
         # Save to Zarr
         zarr_path = tmp_path / "test_substacks.zarr"
         with NanoLoczStore.open(str(zarr_path), mode='w') as store:
-            store.save_particle_stacks(substack, name='particles')
+            store.save_particle_stacks(substack)
         
         # Verify file was created
         assert zarr_path.exists()

@@ -149,8 +149,41 @@ def detect_particles(
     *,
     mask: Any = None,
     min_distance: float = 0.0,
+    threshold: float | None = None,  # Backward compatibility alias for thresh
 ) -> DetectionResult:
-    """Detect particles and return typed coordinates, mask, and statistics."""
+    """Detect particles and return typed coordinates, mask, and statistics.
+    
+    Parameters
+    ----------
+    img : array_like
+        Input image data
+    method : str
+        Detection method: 'direct' or 'crosscorr'
+    ref_img : array_like, optional
+        Reference image for cross-correlation method
+    thresh : float, optional
+        Detection threshold (default: auto-calculated)
+    threshold : float, optional
+        Alias for thresh for backward compatibility with tests
+    kernel_size : int
+        Size of local maxima kernel
+    min_prom : float, optional
+        Minimum prominence for peak selection
+    rotation_angles : array_like, optional
+        Angles to test for cross-correlation method
+    use_gpu : bool
+        GPU acceleration flag (currently CPU-only reference)
+    mask : array_like, optional
+        Boolean mask for valid regions
+    min_distance : float
+        Minimum distance between detected peaks
+    """
+    # Backward compatibility: threshold kwarg aliases thresh
+    if threshold is not None:
+        if thresh is not None:
+            raise ValueError("Cannot specify both 'thresh' and 'threshold'")
+        thresh = threshold
+    
     image = _validate_image(img)
     allowed = _validate_mask(mask, image.shape)
     if method == "direct":

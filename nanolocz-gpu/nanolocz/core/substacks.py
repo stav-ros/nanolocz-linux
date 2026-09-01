@@ -15,6 +15,65 @@ from scipy.ndimage import shift, map_coordinates
 from nanolocz.core.types import Frame, Localizations, ParticleStack
 
 
+def _apply_mask_to_data(data: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Apply a 2D or per-frame mask to extraction data which may be 3D or 4D.
+    
+    Parameters
+    ----------
+    data : np.ndarray
+        Data with shape either (n_particles, H, W) or (n_particles, n_frames, H, W)
+    mask : np.ndarray
+        Either 2D (H, W) or 3D (n_frames, H, W) mask
+        
+    Returns
+    -------
+    np.ndarray
+        Masked data (in-place multiplication)
+        
+    Raises
+    ------
+    ValueError
+        If mask dimensions are incompatible with data
+    """
+    if mask is None:
+        return data
+
+    # Ensure mask is numpy array
+    mask = np.asarray(mask)
+
+    if data.ndim == 3:  # (n_particles, H, W)
+        if mask.ndim == 2:
+            data *= mask[None, :, :]
+        elif mask.ndim == 3:
+            # mask per frame but data has no per-frame axis
+            if mask.shape[0] == 1:
+                data *= mask[0][None, :, :]
+            else:
+                raise ValueError(
+                    "Provided mask has a frame axis but extracted data is 2D per particle; "
+                    "provide 2D mask."
+                )
+        else:
+            raise ValueError("mask must be 2D or 3D")
+    elif data.ndim == 4:  # (n_particles, n_frames, H, W)
+        if mask.ndim == 2:
+            data *= mask[None, None, :, :]
+        elif mask.ndim == 3:
+            # mask expected shape (n_frames, H, W)
+            if mask.shape[0] != data.shape[1]:
+                raise ValueError(
+                    f"Frame dimension of mask ({mask.shape[0]}) does not match "
+                    f"extracted data frames ({data.shape[1]})"
+                )
+            data *= mask[None, :, :, :]
+        else:
+            raise ValueError("mask must be 2D or 3D")
+    else:
+        raise ValueError(f"Unexpected data ndim: expected 3 or 4, got {data.ndim}")
+
+    return data
+
+
 def _movie_to_array(movie: list[Frame] | np.ndarray) -> np.ndarray:
     """Convert movie to 3D numpy array (frames, height, width)."""
     if isinstance(movie, np.ndarray):
@@ -178,18 +237,19 @@ def extract_particle_substacks(
             # Extract patch
             patch = frame_data[y_start:y_end, x_start:x_end].copy()
             
-            # Apply mask if provided
+            # Apply mask if provided using robust helper
             if mask is not None:
-                if mask.shape != patch.shape:
-                    # Resize mask or crop
-                    if mask.shape == (patch_h, patch_w):
-                        patch = patch * mask
-                    else:
-                        # Assume mask is full-frame, extract same region
-                        mask_patch = mask[y_start:y_end, x_start:x_end]
-                        patch = patch * mask_patch
+                # Create a temporary 4D array for consistent masking
+                temp_data = patch[None, None, :, :]  # (1, 1, H, W)
+                if mask.shape == (patch_h, patch_w):
+                    # 2D mask
+                    masked = _apply_mask_to_data(temp_data, mask)
+                    patch = masked[0, 0]
                 else:
-                    patch = patch * mask
+                    # Assume mask is full-frame, extract same region
+                    mask_patch = mask[y_start:y_end, x_start:x_end]
+                    masked = _apply_mask_to_data(temp_data, mask_patch)
+                    patch = masked[0, 0]
             
             substacks[pid, fidx, :, :] = patch
             centers_list.append((x, y))

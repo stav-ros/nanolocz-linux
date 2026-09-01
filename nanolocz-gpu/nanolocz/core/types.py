@@ -164,12 +164,19 @@ class ParticleStack:
     
     @property
     def n_particles(self) -> int:
-        """Return number of unique particles (not total detections)."""
-        if len(self.centers_xy) == 0:
-            return 0
-        # Count unique particle centers
-        unique_centers = set(tuple(c) for c in self.centers_xy)
-        return len(unique_centers)
+        """Return number of particle entries (detections) in the stack.
+        
+        For 3D data (n_particles, H, W): returns data.shape[0]
+        For 4D data (n_particles, n_frames, H, W): returns data.shape[0]
+        
+        This counts the number of substacks extracted, which may include
+        multiple detections of the same particle across frames.
+        """
+        if not hasattr(self.data, 'shape') or len(self.data.shape) < 3:
+            return len(self.centers_xy)
+        
+        # First axis is always particles
+        return int(self.data.shape[0])
 
 
 # ============================================================================
