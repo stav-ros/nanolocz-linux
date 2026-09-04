@@ -130,28 +130,28 @@ def compute_shift_fft(
     moving_norm = (moving - moving.mean()) / (moving.std() + 1e-10)
     reference_norm = (reference - reference.mean()) / (reference.std() + 1e-10)
     
-    # FFT-based cross-correlation
+    # FFT-based cross-correlation with fftshift for easier peak detection
     fft_moving = np.fft.fft2(moving_norm)
     fft_ref = np.fft.fft2(reference_norm)
     
     # Cross-correlation via inverse FFT of product with conjugate
     cross_corr = np.fft.ifft2(fft_moving * np.conj(fft_ref))
     cross_corr = np.real(cross_corr)
+    cross_corr = np.fft.fftshift(cross_corr)  # Shift zero-frequency to center
     
     # Find peak location
     peak_idx = np.unravel_index(np.argmax(cross_corr), cross_corr.shape)
     
-    # Compute shift from peak position
+    # Compute shift from peak position (center is at (ny//2, nx//2))
     ny, nx = cross_corr.shape
-    # For FFT cross-correlation without fftshift:
-    # - Peak at (0, 0) means zero shift
-    # - Peak at (dy, dx) where dy < ny/2, dx < nx/2 means positive shift
-    # - Peak at (ny-dy, nx-dx) where dy > ny/2, dx > nx/2 means negative shift
-    dx = float(peak_idx[1]) if peak_idx[1] <= nx // 2 else float(peak_idx[1] - nx)
-    dy = float(peak_idx[0]) if peak_idx[0] <= ny // 2 else float(peak_idx[0] - ny)
+    center_y, center_x = ny // 2, nx // 2
+    
+    # Offset from center gives the shift
+    dx_coarse = float(peak_idx[1] - center_x)
+    dy_coarse = float(peak_idx[0] - center_y)
     
     # Sub-pixel refinement via parabolic fit around peak
-    dx, dy = _refine_shift_parabolic(cross_corr, peak_idx, dx, dy)
+    dx, dy = _refine_shift_parabolic(cross_corr, peak_idx, dx_coarse, dy_coarse)
     
     return dx, dy
 
