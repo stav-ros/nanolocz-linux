@@ -1,21 +1,26 @@
 ```
-# Dependencies
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-env/
-ENV/
-.venv/
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
 .env
 .env.local
-.env.*
-.envrc
+*.env.*
 
-# Build and distribution artifacts
-build/
+# Dependencies
+.venv/
+venv/
+__pycache__/
+*.pyc
+*$py.class
+
+# Editors
+.vscode/
+.idea/
+
+# Build artifacts
 dist/
 *.egg-info/
 .eggs/
