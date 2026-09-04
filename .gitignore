@@ -17,47 +17,33 @@ ENV/
 # Build and distribution artifacts
 build/
 dist/
-*.egg
 *.egg-info/
-*.so
-*.dylib
-*.dll
-*.exe
-*.o
-*.obj
-*.a
-*.lib
+.eggs/
+.installed.cfg
+*.egg
 
 # Testing
+.pytest_cache/
 .coverage
 coverage/
 htmlcov/
-.nox/
-.tox/
-.pytest_cache/
-.hypothesis/
-
-# Editors and IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
-
-# Environment specific
+# OS generated files
 .DS_Store
-*.env
-.env.local
-.env.*
-.envrc
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
 ```
