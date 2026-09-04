@@ -33,7 +33,7 @@ Status: ready to start — NL-36 dynamics traces complete with 17 tests passing;
 | NL-35 | Tip estimation and regularized deconvolution | **done** | `nanolocz/core/tip_estimation.py`; `tests/test_tip_estimation_nl35.py`; estimate_tip_morphological, estimate_tip_optimization, richardson_lucy_deconv, wiener_deconv, validate_tip; 21 passed + 3 skipped (CuPy); SPEC/NL-35-tip-estimation.md; SESSIONS/2026-09-04-NL-35.md |
 | NL-36 | Dynamics traces, transitions, and dwell times | **done** | `nanolocz/core/dynamics.py`; `tests/test_dynamics_nl36.py`; extract_particle_traces, fit_hmm, detect_change_points, compute_dwell_times, estimate_rate_constants; 17 passed; SPEC/NL-36-dynamics-traces.md; SESSIONS/2026-09-04-NL-36.md |
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
-| NL-37 | 3D Reconstruction from particle stacks | in_progress | SPEC/NL-37-3d-reconstruction.md pending; depends on NL-34 ✓, NL-36 ✓ |
+| NL-37 | 3D Reconstruction from particle stacks | **done** | `nanolocz/core/reconstruction.py`; `tests/test_reconstruction_nl37.py`; back_projection, sirt, estimate_resolution_fsc, reconstruct_volume; SPEC/NL-37-3d-reconstruction.md; SESSIONS/2026-09-04-NL-37.md |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
@@ -86,20 +86,17 @@ Status: ready to start — NL-36 dynamics traces complete with 17 tests passing;
 
 ## Current action
 
-NL-34 is now in progress. Specification document SPEC/NL-34-inclass-alignment.md needs to be created. Implementation of in-class alignment and averaging for particle substacks is ready to begin.
-
 **Current status**:
 - Phase 1 (CPU Core): COMPLETE (NL-01 through NL-17)
 - Phase 2 (GPU Foundation): COMPLETE (NL-20, NL-21, NL-22, NL-23, NL-24, NL-30)
-- Phase 3 (LAFM+): IN PROGRESS with NL-34 (NL-31, NL-32, NL-33 complete)
+- Phase 3 (LAFM+): COMPLETE (NL-31 through NL-37) ✓
 
 **Active card**:
-- NL-34: In-class alignment and averaging — SPEC pending; depends on NL-33 ✓, NL-32 ✓
+- NL-38: Pipeline orchestration — depends on NL-30✓, NL-34✓, NL-36✓, NL-37✓
 
-**Next cards after NL-34**:
-- NL-35: Tip estimation and regularized deconvolution (depends on NL-34, NL-24)
-- NL-36: Dynamics traces, transitions, and dwell times (depends on NL-33, NL-17)
-- NL-37: Napari replay hooks (depends on NL-34, NL-36)
+**Next cards after NL-38**:
+- NL-39: Frontend integration with dashboard
+- NL-40: Batch processing and job queue management
 
 The verified workflows now support:
 ```
