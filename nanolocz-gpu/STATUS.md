@@ -1,9 +1,9 @@
 # Project status
 
-Last updated: 2026-08-29
-Current phase: Phase 3 — LAFM+ (NL-33 COMPLETE)
-Current card: NL-34
-Status: in_progress — NL-33 PCA to HDBSCAN grouping complete with 31 tests passing; starting NL-34 in-class alignment and averaging
+Last updated: 2026-09-04
+Current phase: Phase 3 — LAFM+ (NL-36 COMPLETE)
+Current card: NL-37
+Status: ready to start — NL-36 dynamics traces complete with 17 tests passing; starting NL-37 3D reconstruction
 
 ## Progress
 
@@ -29,8 +29,11 @@ Status: in_progress — NL-33 PCA to HDBSCAN grouping complete with 31 tests pas
 | NL-31 | Directional deskar filter | **done** | `nanolocz/core/deskar.py`; `tests/test_deskar_nl31.py`; directional_deskar, remove_scan_lines, anisotropic_diffusion, process_movie_deskar; 23 passed + 6 skipped (CuPy); SPEC/NL-31-directional-deskar.md; SESSIONS/2026-08-29-NL-31.md |
 | NL-32 | Particle substack extraction | **done** | `nanolocz/core/substacks.py`; `tests/test_substacks_nl32.py`; extract_particle_substacks, extract_drift_corrected_substacks, batch_extract_substacks, create_gaussian_mask, apply_binary_mask; 28 passed + 8 skipped (CuPy); SPEC/NL-32-particle-substacks.md; SESSIONS/2026-08-29-NL-32.md |
 | NL-33 | PCA to HDBSCAN grouping | **done** | `nanolocz/core/classification.py`; `nanolocz/gpu/classification.py`; `tests/test_classification_nl33.py`; classify_particles, reduce_dimensions_pca, cluster_hdbscan, ClassificationResult, plot_scree, plot_clusters_2d; 31 passed + 1 skipped (CuPy); SPEC/NL-33-pca-hdbscan.md; SESSIONS/2026-08-29-NL-33.md |
+| NL-34 | In-class alignment and averaging | **done** | `nanolocz/core/alignment.py`; `tests/test_alignment_nl34.py`; align_particles, refine_alignment, compute_class_averages, compute_shift_fft, apply_shift_fourier; 45 passed + 6 skipped (CuPy); SPEC/NL-34-inclass-alignment.md; SESSIONS/2026-09-04-NL-34.md |
+| NL-35 | Tip estimation and regularized deconvolution | **done** | `nanolocz/core/tip_estimation.py`; `tests/test_tip_estimation_nl35.py`; estimate_tip_morphological, estimate_tip_optimization, richardson_lucy_deconv, wiener_deconv, validate_tip; 21 passed + 3 skipped (CuPy); SPEC/NL-35-tip-estimation.md; SESSIONS/2026-09-04-NL-35.md |
+| NL-36 | Dynamics traces, transitions, and dwell times | **done** | `nanolocz/core/dynamics.py`; `tests/test_dynamics_nl36.py`; extract_particle_traces, fit_hmm, detect_change_points, compute_dwell_times, estimate_rate_constants; 17 passed; SPEC/NL-36-dynamics-traces.md; SESSIONS/2026-09-04-NL-36.md |
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
-| NL-34 | In-class alignment and averaging | in_progress | SPEC/NL-34-inclass-alignment.md pending; depends on NL-33 ✓ |
+| NL-37 | 3D Reconstruction from particle stacks | in_progress | SPEC/NL-37-3d-reconstruction.md pending; depends on NL-34 ✓, NL-36 ✓ |
 | NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
