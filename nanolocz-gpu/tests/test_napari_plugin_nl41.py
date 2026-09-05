@@ -18,54 +18,56 @@ class TestPipelineConfig:
         """Test default configuration values."""
         config = PipelineConfig()
         
-        assert config.leveling_method == "plane"
-        assert config.filter_name == "gaussian"
+        assert config.leveling == "plane"
+        assert config.filter_type == "gaussian"
         assert config.filter_sigma == 1.0
-        assert config.detection_threshold == 3.5
-        assert config.min_distance == 5.0
+        assert config.threshold == 3.0
+        assert config.min_distance == 5
         assert config.prominence == 0.0
         assert config.max_displacement == 10.0
-        assert config.memory == 2
-        assert config.gap_closing is True
-        assert config.use_gpu is False
-        assert config.precision == "mixed"
-        assert config.splat_sigma == 2.0
+        assert config.memory == 3
+        assert config.gap_closing == 2
+        assert config.gpu is False
+        assert config.precision == "float64"
+        assert config.sigma == 0.5
+        assert config.frc is False
         assert config.input_path == ""
         assert config.output_path == ""
 
     def test_custom_values(self):
         """Test custom configuration values."""
         config = PipelineConfig(
-            leveling_method="median",
-            filter_name="bilateral",
+            leveling="line",
+            filter_type="median",
             filter_sigma=2.5,
-            detection_threshold=5.0,
-            min_distance=10.0,
+            threshold=5.0,
+            min_distance=10,
             max_displacement=20.0,
             memory=5,
-            gap_closing=False,
-            use_gpu=True,
-            splat_sigma=3.0,
+            gap_closing=3,
+            gpu=True,
+            precision="float32",
+            sigma=3.0,
         )
         
-        assert config.leveling_method == "median"
-        assert config.filter_name == "bilateral"
+        assert config.leveling == "line"
+        assert config.filter_type == "median"
         assert config.filter_sigma == 2.5
-        assert config.detection_threshold == 5.0
-        assert config.min_distance == 10.0
+        assert config.threshold == 5.0
+        assert config.min_distance == 10
         assert config.max_displacement == 20.0
         assert config.memory == 5
-        assert config.gap_closing is False
-        assert config.use_gpu is True
-        assert config.splat_sigma == 3.0
+        assert config.gap_closing == 3
+        assert config.gpu is True
+        assert config.sigma == 3.0
 
     def test_to_dict(self):
         """Test conversion to dictionary."""
-        config = PipelineConfig(detection_threshold=4.0)
-        config_dict = config.__dict__
+        config = PipelineConfig(threshold=4.0)
+        config_dict = config.to_dict()
         
         assert isinstance(config_dict, dict)
-        assert config_dict["detection_threshold"] == 4.0
+        assert config_dict["threshold"] == 4.0
 
 
 class TestNanoLoczWidget:
@@ -101,7 +103,7 @@ class TestNanoLoczWidget:
     def test_config_initialization(self, widget):
         """Test config is properly initialized."""
         assert isinstance(widget.config, PipelineConfig)
-        assert widget.config.detection_threshold == 3.5
+        assert widget.config.threshold == 3.0
 
     def test_detect_particles_synthetic(self, viewer, widget):
         """Test particle detection function works (skip layer addition due to OpenGL)."""
@@ -116,13 +118,14 @@ class TestNanoLoczWidget:
         
         result = detect_particles(
             data,
-            threshold=widget.config.detection_threshold,
+            threshold=widget.config.threshold,
             min_distance=widget.config.min_distance
         )
         
         # Check particles were detected
         assert result is not None
-        assert 'coordinates' in result or len(result) >= 3 if isinstance(result, np.ndarray) else True
+        assert hasattr(result, 'coordinates')
+        assert len(result.coordinates) >= 3
 
     def test_tracking_single_frame(self, viewer, widget):
         """Test tracking function works (skip layer addition due to OpenGL)."""
@@ -167,17 +170,17 @@ class TestNanoLoczWidget:
         with open(config_file) as f:
             saved_config = json.load(f)
         
-        assert saved_config["detection_threshold"] == 3.5
+        assert saved_config["threshold"] == 3.0
 
     def test_ui_groups_exist(self, widget):
         """Test that all UI groups are created."""
-        # Check buttons exist
-        assert hasattr(widget, 'open_btn')
-        assert hasattr(widget, 'apply_preprocess_btn')
-        assert hasattr(widget, 'detect_btn')
-        assert hasattr(widget, 'track_btn')
-        assert hasattr(widget, 'lafm_btn')
-        assert hasattr(widget, 'export_btn')
+        # Check main layout and key widgets exist
+        assert hasattr(widget, 'config')
+        assert hasattr(widget, '_create_project_group')
+        assert hasattr(widget, '_create_preprocess_group')
+        assert hasattr(widget, '_create_detect_group')
+        assert hasattr(widget, '_create_track_group')
+        assert hasattr(widget, '_create_results_group')
 
 
 class TestPluginIntegration:

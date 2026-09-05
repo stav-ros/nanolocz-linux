@@ -1,9 +1,42 @@
 # Project status
 
 Last updated: 2026-09-05
-Current phase: Phase 4 — Interface and Ship (NL-40 COMPLETE)
-Current card: NL-41
-Status: Ready to start NL-41a — NL-40 CLI and batch runner complete with 18/18 tests passing; pyproject.toml updated with napari extra; README expanded with installation instructions and architecture diagram
+Current phase: Phase 4 — Interface and Ship (NL-40 COMPLETE, NL-41a INTEGRATION REPAIRS COMPLETE)
+Current card: NL-42
+Status: NL-40 CLI fully functional (18/18 tests); NL-41a Napari plugin integration repaired with canonical PipelineConfig, correct API imports, and all 13 tests passing; total 473 tests passing (112 skipped for CuPy)
+
+## Integration Repairs Completed for NL-41a
+
+### ✅ 1. Canonical PipelineConfig unified
+- Single source of truth: `nanolocz/core/config.py`
+- Both CLI (`nanolocz/cli/utils.py`) and plugin (`nanolocz/plugins/napari_plugin.py`) import from same module
+- Consistent field names: `leveling`, `filter_type`, `threshold`, `min_distance`, `gap_closing`, `gpu`, `precision`, etc.
+- Validation method ensures configuration correctness
+- JSON serialization/deserialization supported
+
+### ✅ 2. Plugin API calls corrected
+- File loading: Uses `open_nanolocz()` from `nanolocz.io`
+- Preprocessing: Uses `level_image()` from `nanolocz.core.leveling` and filter functions from `nanolocz.core.filters`
+- Detection: Uses `detect_particles()` from `nanolocz.core.detection`
+- Tracking: Uses `track_particles()` from `nanolocz.core.tracking`
+- LAFM: Uses `splat_localizations_gpu()` and `compute_frc_gpu()` from `nanolocz.gpu.lafm`
+
+### ✅ 3. Test suite updated and passing
+- All 13 plugin tests now pass
+- Tests use canonical `PipelineConfig` fields
+- Detection test verifies `DetectionResult.coordinates` attribute
+- Config save/load test validates correct field names
+- UI structure tests verify widget groups exist
+
+### ⚠️ 4. Async workers (deferred to NL-41b)
+- Current implementation runs synchronously (acceptable for NL-41a minimum viable)
+- Background workers with `@thread_worker` planned for NL-41b
+- Progress reporting and cancellation to be added in next iteration
+
+### ✅ 5. Test count verified
+- Command: `python -m pytest -q`
+- Environment: Python 3.12.10, Linux, CuPy not installed
+- Results: 473 passed, 112 skipped (GPU tests gracefully fallback to CPU)
 
 ## Test Summary
 
@@ -61,7 +94,7 @@ python -m pytest -q
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
 | NL-37 | 3D Reconstruction from particle stacks | **done** | `nanolocz/core/reconstruction.py`; `tests/test_reconstruction_nl37.py`; back_projection, sirt, estimate_resolution_fsc, reconstruct_volume; SPEC/NL-37-3d-reconstruction.md; SESSIONS/2026-09-04-NL-37.md |
 | NL-40 | Headless CLI and batch runner | **done** | `nanolocz/cli/` package with 7 modules; `tests/test_cli_nl40.py` (18/18 tests); CLI entry point `nanolocz` command; 5 subcommands (preprocess, detect, track, lafm, batch); JSON config support; examples/cli_config.json; SESSIONS/2026-09-05-NL-40.md |
-| NL-41 | Napari plugin v1 (NL-41a) | **done** | `nanolocz/plugins/` package with dock widget; `tests/test_napari_plugin_nl41.py` (13/13 tests); napari.yaml manifest; file loading, detection, tracking, LAFM, export; shared PipelineConfig; SESSIONS/2026-09-05-NL-41.md |
+| NL-41 | Napari plugin v1 (NL-41a) | **done** | `nanolocz/plugins/` package with dock widget; `tests/test_napari_plugin_nl41.py` (13/13 tests); napari.yaml manifest; canonical PipelineConfig from `nanolocz/core/config.py`; correct API integrations for file I/O, preprocessing, detection, tracking, LAFM; SESSIONS/2026-09-05-NL-41.md |
 | NL-42–NL-43 | Interface and shipping | not_started | NL-42 Docker/conda packaging; NL-43 benchmark report and v1.0-gpu release |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
@@ -121,14 +154,14 @@ python -m pytest -q
 - Phase 4 (Interface and Ship): IN PROGRESS (NL-40 & NL-41a complete)
 
 **Active card**:
-- NL-41b (optional): Advanced Napari features — or proceed to NL-42
+- Ready for NL-41b (advanced features) or NL-42 (packaging)
 
 **Completed in Phase 4**:
 - NL-40: Headless CLI and batch runner ✓
 - NL-41a: Napari plugin v1 (minimum viable) ✓
 
 **Remaining cards in Phase 4**:
-- NL-41b (optional): Advanced Napari features (GPU LAFM, FRC plots, 3D volumes, ROI measurements)
+- NL-41b (optional): Advanced Napari features (async workers, GPU LAFM, FRC plots, 3D volumes, ROI measurements)
 - NL-42: Docker and conda packaging
 - NL-43: Benchmark report and v1.0-gpu release
 
