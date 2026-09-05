@@ -56,9 +56,90 @@ NanoLocz provides a comprehensive command-line interface for headless batch proc
 
 ### Installation
 
+**Requirements:**
+- Python >= 3.11
+- Linux (primary), macOS, Windows
+- CUDA toolkit (optional, for GPU acceleration)
+
+**Basic installation (CPU only):**
 ```bash
-pip install -e .
+git clone https://github.com/stav-ros/nanolocz-linux.git
+cd nanolocz-linux/nanolocz-gpu
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+python -m pip install -e ".[test]"
+
+# Verify installation
+nanolocz --help
+# Or without console script:
+python -m nanolocz.cli --help
 ```
+
+**With GPU support (CUDA 12.x):**
+```bash
+python -m pip install -e ".[test,gpu]"
+```
+
+**For Napari GUI plugin:**
+```bash
+python -m pip install -e ".[napari]"
+```
+
+**Full development environment:**
+```bash
+python -m pip install -e ".[dev]"
+```
+
+**Optional format support:**
+- `.gwy` files: Requires `gwymation` package
+- `.jpk` / `.h5-jpk`: Built-in via `h5py`
+- `.spm`, `.asd`, `.ibw`: Custom parsers in `nanolocz/io/`
+
+**Output formats:**
+- Default: `.zarr` (multi-dimensional arrays with metadata)
+- Export: `.tiff`, `.png`, `.csv`, `.pdb`
+
+---
+
+### Architecture Overview
+
+NanoLocz has three distinct layers:
+
+```
+┌─────────────────────────────────────────┐
+│  React Dashboard (Web Frontend)         │
+│  - Project status & roadmap             │
+│  - CLI documentation                    │
+│  - Session handoffs                     │
+│  - Release readiness                    │
+│  - Interactive demos                    │
+└─────────────────────────────────────────┘
+                    ↓ documents
+┌─────────────────────────────────────────┐
+│  Napari Plugin (Scientific GUI)         │
+│  - AFM image/movie visualization        │
+│  - Frame navigation & contrast          │
+│  - Detection overlays & tracks          │
+│  - LAFM reconstructions & 3D volumes    │
+│  - Parameter controls & export          │
+└─────────────────────────────────────────┘
+                    ↓ calls
+┌─────────────────────────────────────────┐
+│  Python CLI / Core (Execution Engine)   │
+│  - nanolocz/cli/ (command-line tools)   │
+│  - nanolocz/core/ (detection, tracking) │
+│  - nanolocz/gpu/ (LAFM, FRC)            │
+│  - nanolocz/io/ (file I/O)              │
+│  - nanolocz/simafm/ (simulation)        │
+└─────────────────────────────────────────┘
+```
+
+**Key principle:** The React dashboard is a **control plane** for documentation and project management. It does not execute Python code directly. The Napari plugin provides the **scientific interface** for interactive analysis. Both call the same **core Python functions** used by the CLI, ensuring consistent results across all interfaces.
+
+---
 
 ### Basic Usage
 
