@@ -1,39 +1,39 @@
 # Project status
 
 Last updated: 2026-09-05
-Current phase: Phase 4 — Interface and Ship (NL-40 COMPLETE, NL-41a INTEGRATION REPAIRS COMPLETE)
+Current phase: Phase 4 — Interface and Ship (NL-40 ✓, NL-41a ✓)
 Current card: NL-42
-Status: NL-40 CLI fully functional (18/18 tests); NL-41a Napari plugin integration repaired with canonical PipelineConfig, correct API imports, and all 13 tests passing; total 473 tests passing (112 skipped for CuPy)
+Status: NL-40 CLI complete (18/18 tests); NL-41a Napari plugin complete with canonical PipelineConfig, correct API integrations, all 13 tests passing; total 473 tests passing (112 skipped for CuPy); ready for NL-42 packaging
 
-## Integration Repairs Completed for NL-41a
+## NL-41a Integration Summary
 
-### ✅ 1. Canonical PipelineConfig unified
+### ✅ Canonical PipelineConfig unified
 - Single source of truth: `nanolocz/core/config.py`
 - Both CLI (`nanolocz/cli/utils.py`) and plugin (`nanolocz/plugins/napari_plugin.py`) import from same module
 - Consistent field names: `leveling`, `filter_type`, `threshold`, `min_distance`, `gap_closing`, `gpu`, `precision`, etc.
 - Validation method ensures configuration correctness
 - JSON serialization/deserialization supported
 
-### ✅ 2. Plugin API calls corrected
+### ✅ Plugin API calls corrected
 - File loading: Uses `open_nanolocz()` from `nanolocz.io`
 - Preprocessing: Uses `level_image()` from `nanolocz.core.leveling` and filter functions from `nanolocz.core.filters`
 - Detection: Uses `detect_particles()` from `nanolocz.core.detection`
 - Tracking: Uses `track_particles()` from `nanolocz.core.tracking`
 - LAFM: Uses `splat_localizations_gpu()` and `compute_frc_gpu()` from `nanolocz.gpu.lafm`
 
-### ✅ 3. Test suite updated and passing
-- All 13 plugin tests now pass
+### ✅ Test suite passing
+- All 13 plugin tests pass
 - Tests use canonical `PipelineConfig` fields
 - Detection test verifies `DetectionResult.coordinates` attribute
 - Config save/load test validates correct field names
 - UI structure tests verify widget groups exist
 
-### ⚠️ 4. Async workers (deferred to NL-41b)
+### ℹ️ Async workers (NL-41b scope)
 - Current implementation runs synchronously (acceptable for NL-41a minimum viable)
 - Background workers with `@thread_worker` planned for NL-41b
 - Progress reporting and cancellation to be added in next iteration
 
-### ✅ 5. Test count verified
+### ✅ Test count verified
 - Command: `python -m pytest -q`
 - Environment: Python 3.12.10, Linux, CuPy not installed
 - Results: 473 passed, 112 skipped (GPU tests gracefully fallback to CPU)
@@ -52,7 +52,7 @@ python -m pytest -q
 ```
 
 **Results:**
-- 460 tests passing
+- 473 tests passing
 - 112 tests skipped (CuPy/GPU unavailable — expected behavior)
 - 0 failures
 
@@ -61,6 +61,7 @@ python -m pytest -q
 - I/O (Zarr, file formats): 100+ tests  
 - GPU backend (CPU fallback mode): 150+ tests
 - CLI (NL-40): 18 tests
+- Napari plugin (NL-41a): 13 tests
 - Reconstruction (NL-37): 23 tests
 - Other components: remaining tests
 
