@@ -348,6 +348,7 @@ class NanoLoczWidget(QWidget):
 
 from magicgui import magic_factory
 
+@magic_factory
 def make_nanolocz_widget(viewer: "napari.Viewer") -> QWidget:
     """Create and return a NanoLocz widget instance."""
     from napari import Viewer
