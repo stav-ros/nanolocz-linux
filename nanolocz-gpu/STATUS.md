@@ -61,7 +61,8 @@ python -m pytest -q
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
 | NL-37 | 3D Reconstruction from particle stacks | **done** | `nanolocz/core/reconstruction.py`; `tests/test_reconstruction_nl37.py`; back_projection, sirt, estimate_resolution_fsc, reconstruct_volume; SPEC/NL-37-3d-reconstruction.md; SESSIONS/2026-09-04-NL-37.md |
 | NL-40 | Headless CLI and batch runner | **done** | `nanolocz/cli/` package with 7 modules; `tests/test_cli_nl40.py` (18/18 tests); CLI entry point `nanolocz` command; 5 subcommands (preprocess, detect, track, lafm, batch); JSON config support; examples/cli_config.json; SESSIONS/2026-09-05-NL-40.md |
-| NL-41–NL-43 | Interface and shipping | in_progress | NL-40 complete; NL-41 Napari plugin v1 is current card |
+| NL-41 | Napari plugin v1 (NL-41a) | **done** | `nanolocz/plugins/` package with dock widget; `tests/test_napari_plugin_nl41.py` (13/13 tests); napari.yaml manifest; file loading, detection, tracking, LAFM, export; shared PipelineConfig; SESSIONS/2026-09-05-NL-41.md |
+| NL-42–NL-43 | Interface and shipping | not_started | NL-42 Docker/conda packaging; NL-43 benchmark report and v1.0-gpu release |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
 ## Phase 1 reconciliation evidence
@@ -117,12 +118,17 @@ python -m pytest -q
 - Phase 1 (CPU Core): COMPLETE (NL-01 through NL-17)
 - Phase 2 (GPU Foundation): COMPLETE (NL-20, NL-21, NL-22, NL-23, NL-24, NL-30)
 - Phase 3 (LAFM+): COMPLETE (NL-31 through NL-37) ✓
-- Phase 4 (Interface and Ship): IN PROGRESS (NL-40 complete, NL-41 current)
+- Phase 4 (Interface and Ship): IN PROGRESS (NL-40 & NL-41a complete)
 
 **Active card**:
-- NL-41: Napari plugin v1 — depends on NL-40✓
+- NL-41b (optional): Advanced Napari features — or proceed to NL-42
+
+**Completed in Phase 4**:
+- NL-40: Headless CLI and batch runner ✓
+- NL-41a: Napari plugin v1 (minimum viable) ✓
 
 **Remaining cards in Phase 4**:
+- NL-41b (optional): Advanced Napari features (GPU LAFM, FRC plots, 3D volumes, ROI measurements)
 - NL-42: Docker and conda packaging
 - NL-43: Benchmark report and v1.0-gpu release
 
