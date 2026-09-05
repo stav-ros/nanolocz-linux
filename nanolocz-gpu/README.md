@@ -50,6 +50,93 @@ future simulation parity, CUDA acceleration, and optional viewer integration.
 
 ---
 
+## Command-Line Interface (CLI)
+
+NanoLocz provides a comprehensive command-line interface for headless batch processing and automation.
+
+### Installation
+
+```bash
+pip install -e .
+```
+
+### Basic Usage
+
+```bash
+# Show all available commands
+nanolocz --help
+
+# Preprocess an AFM movie
+nanolocz preprocess -i movie.gwy -o processed.zarr --leveling plane --filter gaussian
+
+# Detect particles
+nanolocz detect -i processed.zarr -o detected.zarr --threshold 3.5 --min-distance 5
+
+# Track particles across frames
+nanolocz track -i detected.zarr -o tracked.zarr --max-displacement 10
+
+# LAFM reconstruction with FRC resolution
+nanolocz lafm -i tracked.zarr -o lafm.zarr --pixel-size 0.5
+
+# Batch process multiple files
+nanolocz batch -i ./data/*.gwy -o ./results/ --config examples/cli_config.json --jobs 4
+```
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `preprocess` | Leveling, filtering, scar removal on AFM movies |
+| `detect` | Particle detection with configurable parameters |
+| `track` | Single-particle tracking with gap closing |
+| `lafm` | LAFM reconstruction and FRC calculation |
+| `batch` | Process multiple files with a job queue |
+
+### Configuration Files
+
+Save pipeline parameters as JSON for reproducible workflows:
+
+```bash
+nanolocz batch -i ./data/ -o ./results/ --config my_pipeline.json
+```
+
+Example configuration file (`examples/cli_config.json`):
+```json
+{
+  "preprocess": {
+    "leveling": "plane",
+    "filter": "gaussian",
+    "filter_sigma": 1.0
+  },
+  "detect": {
+    "threshold": 3.5,
+    "min_distance": 5
+  },
+  "track": {
+    "max_displacement": 10,
+    "memory": 2
+  },
+  "lafm": {
+    "pixel_size": 0.5,
+    "sigma": 1.0,
+    "frc_threshold": 0.5
+  }
+}
+```
+
+### Common Options
+
+- `--input` / `-i`: Input file(s) or directory
+- `--output` / `-o`: Output path (.zarr by default)
+- `--config` / `-c`: JSON config file
+- `--verbose` / `-v`: Verbose output
+- `--gpu` / `--no-gpu`: Force GPU/CPU backend
+- `--precision`: float32 or float64
+
+Use `nanolocz <command> --help` for detailed options for each command.
+
+---
+
 ## Current Architecture Analysis
 
 ### Core Components (MATLAB)
