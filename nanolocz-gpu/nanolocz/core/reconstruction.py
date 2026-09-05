@@ -107,7 +107,19 @@ def _forward_project(
 ) -> np.ndarray:
     """Forward project 3D volume to 2D at given angle."""
     theta, phi, psi = angle
-    rotated_volume = ndimage.rotate(volume, [theta, phi, psi], reshape=False, order=1)
+    
+    # Build rotation matrix from Euler angles
+    R = _euler_to_rotation_matrix(theta, phi, psi)
+    
+    # Apply 3D rotation using affine_transform (ndimage.rotate only handles 2D)
+    rotated_volume = ndimage.affine_transform(
+        volume, 
+        R, 
+        offset=0, 
+        order=1, 
+        mode='constant', 
+        cval=0.0
+    )
     projection = np.max(rotated_volume, axis=0)
     
     if projection.shape != proj_shape:
