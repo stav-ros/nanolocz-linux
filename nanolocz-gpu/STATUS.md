@@ -1,9 +1,9 @@
 # Project status
 
 Last updated: 2026-09-04
-Current phase: Phase 3 — LAFM+ (NL-36 COMPLETE)
-Current card: NL-37
-Status: ready to start — NL-36 dynamics traces complete with 17 tests passing; starting NL-37 3D reconstruction
+Current phase: Phase 3 — LAFM+ (NL-37 COMPLETE)
+Current card: NL-38
+Status: ready to start — NL-37 3D reconstruction complete with 23/23 tests passing; starting NL-38 pipeline orchestration
 
 ## Progress
 
