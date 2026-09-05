@@ -50,6 +50,12 @@ docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.7"]
 where = ["."]
 include = ["nanolocz*"]
 
+[project.scripts]
+nanolocz = "nanolocz.cli.main:main"
+
+[project.entry-points."console_scripts"]
+nanolocz = "nanolocz.cli.main:main"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
