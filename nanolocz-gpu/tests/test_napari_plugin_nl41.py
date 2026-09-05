@@ -2,12 +2,12 @@
 
 import numpy as np
 import pytest
-from napari.layers import Image, Points, Tracks
 
-# Skip all tests if napari is not available
+# Skip all tests if the optional Napari stack is not available.
 napari = pytest.importorskip("napari")
 magicgui = pytest.importorskip("magicgui")
 
+from napari.layers import Image, Points, Tracks
 from nanolocz.plugins.napari_plugin import NanoLoczWidget, PipelineConfig
 
 
