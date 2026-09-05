@@ -346,6 +346,9 @@ class NanoLoczWidget(QWidget):
             show_error(f"Export failed: {e}")
 
 
-def make_nanolocz_widget(viewer: Viewer) -> QWidget:
+from magicgui import magic_factory
+
+@magic_factory(call_button=False)  # call_button=False hides the button since we are returning a widget
+def make_nanolocz_widget(viewer: "napari.Viewer") -> QWidget:
     """Create and return a NanoLocz widget instance."""
     return NanoLoczWidget(viewer)
