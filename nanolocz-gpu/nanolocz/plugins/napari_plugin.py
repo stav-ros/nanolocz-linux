@@ -54,6 +54,7 @@ class NanoLoczWidget(QWidget):
         export_btn.clicked.connect(self._export_results)
         layout.addWidget(export_btn)
         group.setLayout(layout)
+        group.show()
         return group
 
     def _create_preprocess_group(self) -> QGroupBox:
@@ -92,6 +93,7 @@ class NanoLoczWidget(QWidget):
         layout.addWidget(apply_btn)
         
         group.setLayout(layout)
+        group.show()
         return group
 
     def _create_detect_group(self) -> QGroupBox:
@@ -121,6 +123,7 @@ class NanoLoczWidget(QWidget):
         layout.addWidget(detect_btn)
         
         group.setLayout(layout)
+        group.show()
         return group
 
     def _create_track_group(self) -> QGroupBox:
@@ -150,6 +153,7 @@ class NanoLoczWidget(QWidget):
         layout.addWidget(track_btn)
         
         group.setLayout(layout)
+        group.show()
         return group
 
     def _create_results_group(self) -> QGroupBox:
@@ -162,6 +166,7 @@ class NanoLoczWidget(QWidget):
         frc_btn.clicked.connect(self._compute_frc)
         layout.addWidget(frc_btn)
         group.setLayout(layout)
+        group.show()
         return group
 
     def _open_file_dialog(self) -> None:
@@ -343,7 +348,9 @@ class NanoLoczWidget(QWidget):
 
 from magicgui import magic_factory
 
-@magic_factory(call_button=False)  # call_button=False hides the button since we are returning a widget
-def make_nanolocz_widget(viewer: Viewer) -> QWidget:
+def make_nanolocz_widget(viewer: "napari.Viewer") -> QWidget:
     """Create and return a NanoLocz widget instance."""
-    return NanoLoczWidget(viewer)
+    from napari import Viewer
+    widget = NanoLoczWidget(viewer)
+    widget.show()
+    return widget
