@@ -1,0 +1,41 @@
+# NanoLocz GPU-enabled Docker Image
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+WORKDIR /app
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    libhdf5-dev \
+    libgl1-mesa-glx \
+    libxcb-xinerama0 \
+    libxcb-cursor0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create virtual environment
+RUN python3.11 -m venv /opt/nanolocz
+ENV PATH="/opt/nanolocz/bin:$PATH"
+ENV PIP_NO_CACHE_DIR=1
+
+# Copy package files
+COPY pyproject.toml README.md NOTICE.md ./
+COPY nanolocz/ ./nanolocz/
+COPY tests/ ./tests/
+COPY examples/ ./examples/
+
+# Install Python package with GPU support
+RUN pip install --upgrade pip
+RUN pip install -e ".[test,gpu]"
+
+# Create data and results directories
+RUN mkdir -p /data /results
+
+# Verify GPU setup
+RUN python -c "import cupy; print(f'CuPy version: {cupy.__version__}'); print(f'GPU count: {cupy.cuda.runtime.getDeviceCount()}')" || true
+
+# Set entrypoint
+ENTRYPOINT ["nanolocz"]
+CMD ["--help"]

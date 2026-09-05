@@ -6,45 +6,72 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
+env/
+env.bak/
+venv.bak/
+.python-version
 
 # Build artifacts
 build/
 dist/
+*.egg
 *.egg-info/
+*.so
+*.dylib
+*.dll
+*.pyd
 
 # Logs
 *.log
+logs/
 
-# Environment
+# Environment files
 .env
 .env.local
-*.env.*
+.env.*
+.envrc
 
 # Editors
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
+*~
 
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Testing
 .coverage
 htmlcov/
-.coverage.*
-.cache
 .pytest_cache/
-.mypy_cache/
+.hypothesis/
+coverage.xml
+*.cover
+.nox/
 
 # Distribution / packaging
 *.tar.gz
 *.whl
-*.zip
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Docker
-.dockerignore
-Dockerfile*
+# PyInstaller
+*.manifest
+*.spec
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage
+.coverage*
 ```

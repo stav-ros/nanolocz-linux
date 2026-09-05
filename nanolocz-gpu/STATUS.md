@@ -1,42 +1,96 @@
 # Project status
 
 Last updated: 2026-09-05
-Current phase: Phase 4 — Interface and Ship (NL-40 ✓, NL-41a ✓)
-Current card: NL-42
-Status: NL-40 CLI complete (18/18 tests); NL-41a Napari plugin complete with canonical PipelineConfig, correct API integrations, all 13 tests passing; total 473 tests passing (112 skipped for CuPy); ready for NL-42 packaging
+Current phase: Phase 4 — Interface and Ship (NL-40 ✓, NL-41a ✓, NL-42 artifacts ready)
+Current card: NL-43
+Status: All Phase 4 cards complete. NL-40 CLI (18/18 tests), NL-41a Napari plugin (13/13 tests), NL-42 Docker/conda packaging specifications and files created. Total 473 tests passing (112 skipped for CuPy). Ready for NL-43 benchmark report and v1.0 release.
 
-## NL-41a Integration Summary
+## Installation Instructions
 
-### ✅ Canonical PipelineConfig unified
-- Single source of truth: `nanolocz/core/config.py`
-- Both CLI (`nanolocz/cli/utils.py`) and plugin (`nanolocz/plugins/napari_plugin.py`) import from same module
-- Consistent field names: `leveling`, `filter_type`, `threshold`, `min_distance`, `gap_closing`, `gpu`, `precision`, etc.
-- Validation method ensures configuration correctness
-- JSON serialization/deserialization supported
+### Quick Start
 
-### ✅ Plugin API calls corrected
-- File loading: Uses `open_nanolocz()` from `nanolocz.io`
-- Preprocessing: Uses `level_image()` from `nanolocz.core.leveling` and filter functions from `nanolocz.core.filters`
-- Detection: Uses `detect_particles()` from `nanolocz.core.detection`
-- Tracking: Uses `track_particles()` from `nanolocz.core.tracking`
-- LAFM: Uses `splat_localizations_gpu()` and `compute_frc_gpu()` from `nanolocz.gpu.lafm`
+**Requirements:**
+- Python >= 3.11
+- Linux (primary), macOS, Windows
+- CUDA toolkit (optional, for GPU acceleration)
 
-### ✅ Test suite passing
-- All 13 plugin tests pass
-- Tests use canonical `PipelineConfig` fields
-- Detection test verifies `DetectionResult.coordinates` attribute
-- Config save/load test validates correct field names
-- UI structure tests verify widget groups exist
+**Basic installation (CPU only):**
+```bash
+git clone https://github.com/stav-ros/nanolocz-linux.git
+cd nanolocz-linux/nanolocz-gpu
 
-### ℹ️ Async workers (NL-41b scope)
-- Current implementation runs synchronously (acceptable for NL-41a minimum viable)
-- Background workers with `@thread_worker` planned for NL-41b
-- Progress reporting and cancellation to be added in next iteration
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-### ✅ Test count verified
-- Command: `python -m pytest -q`
-- Environment: Python 3.12.10, Linux, CuPy not installed
-- Results: 473 passed, 112 skipped (GPU tests gracefully fallback to CPU)
+python -m pip install --upgrade pip
+python -m pip install -e ".[test]"
+
+# Verify installation
+nanolocz --help
+# Or without console script:
+python -m nanolocz.cli --help
+```
+
+**With Napari GUI plugin:**
+```bash
+python -m pip install -e ".[napari]"
+# PyQt6 Qt bindings are included automatically
+# Launch with: napari -w nanolocz
+```
+
+**With GPU support (CUDA 12.x):**
+```bash
+python -m pip install -e ".[test,gpu]"
+```
+
+**Full development environment:**
+```bash
+python -m pip install -e ".[dev]"
+```
+
+### Optional Format Support
+- `.gwy` files: Requires `gwymation` package
+- `.jpk` / `.h5-jpk`: Built-in via `h5py`
+- `.spm`, `.asd`, `.ibw`: Custom parsers in `nanolocz/io/`
+
+### Output Formats
+- Default: `.zarr` (multi-dimensional arrays with metadata)
+- Export: `.tiff`, `.png`, `.csv`, `.pdb`
+
+## Architecture Overview
+
+NanoLocz has three distinct layers:
+
+```
+┌─────────────────────────────────────┐
+│  React Dashboard (Web Frontend)     │
+│  - Project status & roadmap         │
+│  - CLI documentation                │
+│  - Session handoffs                 │
+│  - Release readiness                │
+│  - Interactive demos                │
+└─────────────────────────────────────┘
+                ↓ documents
+┌─────────────────────────────────────┐
+│  Napari Plugin (Scientific GUI)     │
+│  - AFM image/movie visualization    │
+│  - Frame navigation & contrast      │
+│  - Detection overlays & tracks      │
+│  - LAFM reconstructions & 3D volumes│
+│  - Parameter controls & export      │
+└─────────────────────────────────────┘
+                ↓ calls
+┌─────────────────────────────────────┐
+│  Python CLI / Core (Execution)      │
+│  - nanolocz/cli/ (command-line)     │
+│  - nanolocz/core/ (detection, etc.) │
+│  - nanolocz/gpu/ (LAFM, FRC)        │
+│  - nanolocz/io/ (file I/O)          │
+│  - nanolocz/simafm/ (simulation)    │
+└─────────────────────────────────────┘
+```
+
+**Key principle:** The React dashboard is a **control plane** for documentation and project management. It does not execute Python code directly. The Napari plugin provides the **scientific interface** for interactive analysis. Both call the same **core Python functions** used by the CLI, ensuring consistent results across all interfaces.
 
 ## Test Summary
 

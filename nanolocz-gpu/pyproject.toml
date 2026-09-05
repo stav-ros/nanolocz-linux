@@ -35,21 +35,27 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=8",
+    "pytest-qt>=4.2",      # For Napari GUI tests
     "zarr>=2.18",
-    "napari>=0.5",
-    "magicgui>=0.9",
 ]
 dev = [
-    "pytest>=8",
+    "nanolocz[test,gpu,napari]",
     "pytest-cov>=5",
     "mypy>=1.10",
     "black>=24",
     "flake8>=7",
-    "zarr>=2.18",
+    "ruff>=0.9",
+    "pre-commit>=4.2",
 ]
 gpu = ["cupy-cuda12x>=13"]
-napari = ["napari>=0.5", "magicgui>=0.9"]
-gui = ["napari>=0.5", "magicgui>=0.9", "PyQt6>=6.7", "pyqtgraph>=0.13"]
+napari = [
+    "napari[pyqt6]>=0.5",   # Includes PyQt6 Qt bindings
+    "magicgui>=0.9",
+]
+gui = [
+    "PyQt6>=6.7",
+    "pyqtgraph>=0.13",
+]
 docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.7"]
 
 [tool.setuptools.packages.find]
