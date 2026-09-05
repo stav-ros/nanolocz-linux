@@ -1,0 +1,10 @@
+# Napari plugin manifest for NanoLocz
+name: nanolocz
+display_name: NanoLocz
+contributions:
+  commands:
+    - id: nanolocz.make_nanolocz_widget
+      title: Make NanoLocz Widget
+  widgets:
+    - command: nanolocz.make_nanolocz_widget
+      display_name: NanoLocz
