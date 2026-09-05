@@ -9,3 +9,29 @@ contributions:
   widgets:
     - command: nanolocz.make_nanolocz_widget
       display_name: NanoLocz
+  readers:
+    - command: nanolocz.plugins.napari_readers:napari_read_tiff
+      filename_patterns:
+        - "*.tiff"
+        - "*.tif"
+    - command: nanolocz.plugins.napari_readers:napari_read_h5_afm
+      filename_patterns:
+        - "*.h5"
+        - "*.hdf5"
+    - command: nanolocz.plugins.napari_readers:napari_read_gwy
+      filename_patterns:
+        - "*.gwy"
+    - command: nanolocz.plugins.napari_readers:napari_read_jpk
+      filename_patterns:
+        - "*.jpk"
+        - "*.h5-jpk"
+        - "*.jpks"
+    - command: nanolocz.plugins.napari_readers:napari_read_spm
+      filename_patterns:
+        - "*.spm"
+    - command: nanolocz.plugins.napari_readers:napari_read_ibw
+      filename_patterns:
+        - "*.ibw"
+    - command: nanolocz.plugins.napari_readers:napari_read_asd
+      filename_patterns:
+        - "*.asd"
