@@ -1,69 +1,77 @@
-# Documentation
-*.md.swp
-*.md.bak
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-
-# Logs
-*.log
-
-# Environment files
-.env
-.env.local
-*.env.*
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Build artifacts
-dist/
-build/
-target/
-*.o
-*.obj
-*.out
-*.exe
-*.dll
-*.so
-*.a
-
+```
 # Dependencies
-node_modules/
-venv/
 .venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.mypy_cache/
-.pytest_cache/
-.coverage
-coverage/
-htmlcov/
+.Python
+env/
+env.bak/
+venv.bak/
+.python-version
 
-# System files
+# Build artifacts
+build/
+dist/
+*.egg
+*.egg-info/
+*.so
+*.dylib
+*.dll
+*.pyd
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.*
+.envrc
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-.zsh_history
-.bash_history
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.Z
-*.lz
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.hypothesis/
+coverage.xml
+*.cover
+.nox/
+
+# Distribution / packaging
 *.tar.gz
-*.tar.bz2
-*.tar.xz
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PyInstaller
+*.manifest
+*.spec
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage
+.coverage*
+```
