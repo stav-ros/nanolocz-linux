@@ -1,9 +1,9 @@
 # Project status
 
-Last updated: 2026-09-05
-Current phase: Phase 4 — Interface and Ship (NL-40 ✓, NL-41a ✓, NL-42 artifacts ready)
-Current card: NL-43
-Status: All Phase 4 cards complete. NL-40 CLI (18/18 tests), NL-41a Napari plugin (13/13 tests), NL-42 Docker/conda packaging specifications and files created. Total 473 tests passing (112 skipped for CuPy). Ready for NL-43 benchmark report and v1.0 release.
+Last updated: 2026-09-05  
+Current phase: **Phase 4 — Interface and Ship (COMPLETE)** ✅  
+Current card: **NL-43** (Benchmark report and v1.0-gpu release)  
+Status: **NL-40 CLI** (18/18 tests ✓), **NL-41a Napari plugin** (13/13 tests ✓), **NL-42 Docker/conda packaging** (all artifacts created ✓). Total **473 tests passing** (112 skipped for CuPy). PyPI wheel and sdist built and verified. Conda recipe ready. CI/CD pipeline configured. Ready for NL-43 benchmarking and v1.0 release.
 
 ## Installation Instructions
 
@@ -150,7 +150,8 @@ python -m pytest -q
 | NL-37 | 3D Reconstruction from particle stacks | **done** | `nanolocz/core/reconstruction.py`; `tests/test_reconstruction_nl37.py`; back_projection, sirt, estimate_resolution_fsc, reconstruct_volume; SPEC/NL-37-3d-reconstruction.md; SESSIONS/2026-09-04-NL-37.md |
 | NL-40 | Headless CLI and batch runner | **done** | `nanolocz/cli/` package with 7 modules; `tests/test_cli_nl40.py` (18/18 tests); CLI entry point `nanolocz` command; 5 subcommands (preprocess, detect, track, lafm, batch); JSON config support; examples/cli_config.json; SESSIONS/2026-09-05-NL-40.md |
 | NL-41 | Napari plugin v1 (NL-41a) | **done** | `nanolocz/plugins/` package with dock widget; `tests/test_napari_plugin_nl41.py` (13/13 tests); napari.yaml manifest; canonical PipelineConfig from `nanolocz/core/config.py`; correct API integrations for file I/O, preprocessing, detection, tracking, LAFM; SESSIONS/2026-09-05-NL-41.md |
-| NL-42–NL-43 | Interface and shipping | not_started | NL-42 Docker/conda packaging; NL-43 benchmark report and v1.0-gpu release |
+| NL-42 | Docker and conda packaging | **done** | `Dockerfile` (CPU), `Dockerfile.gpu` (GPU), `.dockerignore`; `conda.recipe/meta.yaml` and README; `.github/workflows/ci-cd.yml` for automated testing/builds/publishing; PyPI wheel and sdist built and verified (473 tests pass); SPEC/NL-42-docker-conda-packaging.md marked complete; SESSIONS/2026-09-05-NL-42.md |
+| NL-43 | Benchmark report and v1.0-gpu release | **current** | Next: Run benchmarks, generate performance reports, tag v1.0, publish to PyPI/Docker Hub/conda-forge |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
 ## Phase 1 reconciliation evidence
