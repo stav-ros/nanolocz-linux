@@ -1,20 +1,15 @@
 """NanoLocz Napari Plugin - Main dock widget implementation."""
 
-from __future__ import annotations
-
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
+from napari import Viewer
 from napari.layers import Image, Points, Tracks
 from napari.utils.notifications import show_info, show_error, show_warning
 from qtpy.QtWidgets import (
     QVBoxLayout, QWidget, QPushButton, QFileDialog,
     QGroupBox, QLabel, QComboBox, QDoubleSpinBox, QSpinBox, QHBoxLayout,
 )
-
-if TYPE_CHECKING:
-    from napari import Viewer
 
 from nanolocz.core.config import PipelineConfig
 
@@ -349,6 +344,6 @@ class NanoLoczWidget(QWidget):
 from magicgui import magic_factory
 
 @magic_factory(call_button=False)  # call_button=False hides the button since we are returning a widget
-def make_nanolocz_widget(viewer: "napari.Viewer") -> QWidget:
+def make_nanolocz_widget(viewer: Viewer) -> QWidget:
     """Create and return a NanoLocz widget instance."""
     return NanoLoczWidget(viewer)
