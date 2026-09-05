@@ -109,6 +109,7 @@ const NAV: { href: string; label: string }[] = [
   { href: "#operator", label: "OPERATE" },
   { href: "#lafmplus", label: "LAFM+" },
   { href: "#simbridge", label: "SIM BRIDGE" },
+  { href: "#phase4", label: "PHASE 4" },
   { href: "#pipeline", label: "PIPELINE" },
   { href: "#benchmarks", label: "BENCHMARKS" },
   { href: "#roadmap", label: "ROADMAP" },

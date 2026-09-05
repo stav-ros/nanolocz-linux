@@ -13,6 +13,7 @@ import {
 } from "./Sections";
 import { AgentPlan, LafmPlus } from "./PlanSections";
 import { SimBridge } from "./SimBridge";
+import { Phase4Workbench } from "./Phase4Workbench";
 import { Operator } from "./Operator";
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
         <AgentPlan />
         <Operator />
         <LafmPlus />
+        <Phase4Workbench />
         <SimBridge />
         <Pipeline />
         <Bench />
