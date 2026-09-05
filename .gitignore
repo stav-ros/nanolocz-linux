@@ -1,69 +1,81 @@
 ```
 # Dependencies
+node_modules/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.venv.bak/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git/modules/
-.pytest_cache/
-.hypothesis/
-
-# Build artifacts
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+.eggs/
+build/
+dist/
+*.whl
+*.tar.gz
 
-# Environment
-.env
-.venv
+# Conda
 env/
-venv/
-ENV/
-.ENV
-env.bak/
-venv.bak/
+environment.yml
+conda-meta/
 
-# Editors
+# Logs
+*.log
+*.out
+*.err
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Environment
+.env
+.env.local
+*.env.*
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+
+# Distribution / packaging
+.Python
+*.so
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+*.c
+*.h
+*.o
+*.obj
+*.dll
+*.exe
+*.bat
+*.sh
+*.tar.gz
+*.zip
+*.tar
+*.gz
+*.bz2
+*.xz
+*.zst
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# CI/CD
+.github/
 ```

@@ -1,0 +1,63 @@
+{% set name = "nanolocz" %}
+{% set version = "0.1.0.dev0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python >=3.11
+    - pip
+    - setuptools >=68
+    - wheel
+  run:
+    - python >=3.11
+    - numpy >=1.26
+    - scipy >=1.14
+    - scikit-image >=0.24
+    - h5py >=3.12
+    - tifffile >=2024.8
+    - scikit-learn >=1.5
+    - hdbscan >=0.8
+    - matplotlib >=3.8
+
+test:
+  imports:
+    - nanolocz
+    - nanolocz.core
+    - nanolocz.gpu
+    - nanolocz.io
+    - nanolocz.formats
+    - nanolocz.cli
+    - nanolocz.plugins
+  commands:
+    - nanolocz --help
+    - python -c "import nanolocz; print(nanolocz.__version__)"
+  requires:
+    - pytest >=8
+    - pip
+
+about:
+  home: https://github.com/stav-ros/nanolocz-linux
+  summary: "NanoLocz: High-resolution AFM analysis with GPU acceleration"
+  description: |
+    NanoLocz is a comprehensive toolkit for Atomic Force Microscopy (AFM) 
+    data analysis, featuring particle detection, tracking, LAFM reconstruction,
+    and 3D structure analysis with optional GPU acceleration.
+  license: GPL-3.0-or-later
+  license_file: NOTICE.md
+  doc_url: https://github.com/stav-ros/nanolocz-linux/tree/main/nanolocz-gpu/docs
+  dev_url: https://github.com/stav-ros/nanolocz-linux
+
+extra:
+  recipe-maintainers:
+    - stav-ros

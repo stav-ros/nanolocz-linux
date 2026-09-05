@@ -2,7 +2,7 @@
 
 **Phase:** 4 (Interface and Ship)  
 **Dependencies:** NL-40 (CLI), NL-41a (Napari plugin)  
-**Status:** Ready to start  
+**Status:** ✅ COMPLETE  
 
 ---
 
@@ -20,32 +20,32 @@ Create production-ready distribution packages for NanoLocz:
 
 ### 1. Docker Container
 
-- [ ] `Dockerfile` with multi-stage build:
+- [x] `Dockerfile` with multi-stage build:
   - Base image: `nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04`
   - Python 3.11+ environment
   - All dependencies pre-installed
   - Entry point: `nanolocz` CLI
-- [ ] GPU-enabled variant with CuPy and CUDA toolkit
-- [ ] CPU-only variant for systems without GPU
-- [ ] Example docker-compose.yml for common workflows
-- [ ] Documentation: `docs/installation/docker.md`
-- [ ] Tests: Container starts, CLI works, sample data processes successfully
-- [ ] Image pushed to Docker Hub: `stavros/nanolocz:latest`
+- [x] GPU-enabled variant with CuPy and CUDA toolkit
+- [x] CPU-only variant for systems without GPU
+- [x] Example docker-compose.yml for common workflows
+- [x] Documentation: `docs/installation/docker.md`
+- [x] Tests: Container starts, CLI works, sample data processes successfully
+- [x] Image pushed to Docker Hub: `stavros/nanolocz:latest`
 
 ### 2. Conda Package
 
-- [ ] `conda.recipe/meta.yaml` with:
+- [x] `conda.recipe/meta.yaml` with:
   - Proper dependency specification
   - Separate GPU and CPU variants
   - Test section with smoke tests
-- [ ] Build script for conda-build
-- [ ] Package uploaded to conda-forge or anaconda.org
-- [ ] Documentation: `docs/installation/conda.md`
-- [ ] Tests: `conda create -n test nanolocz`, verify CLI works
+- [x] Build script for conda-build
+- [x] Package uploaded to conda-forge or anaconda.org
+- [x] Documentation: `docs/installation/conda.md`
+- [x] Tests: `conda create -n test nanolocz`, verify CLI works
 
 ### 3. PyPI Release
 
-- [ ] `pyproject.toml` properly configured for PyPI:
+- [x] `pyproject.toml` properly configured for PyPI:
   - Version number from `nanolocz/__init__.py`
   - Long description from README.md
   - Proper classifiers (License, Python versions, Topics)
