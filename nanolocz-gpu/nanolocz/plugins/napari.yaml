@@ -5,6 +5,7 @@ contributions:
   commands:
     - id: nanolocz.make_nanolocz_widget
       title: Make NanoLocz Widget
+      python_name: nanolocz.plugins.napari_plugin:make_nanolocz_widget
   widgets:
     - command: nanolocz.make_nanolocz_widget
       display_name: NanoLocz
