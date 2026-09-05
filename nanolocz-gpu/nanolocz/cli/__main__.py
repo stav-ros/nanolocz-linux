@@ -1,8 +1,6 @@
-"""NanoLocz command-line interface."""
+"""Allow running CLI via: python -m nanolocz.cli"""
 
 from nanolocz.cli.main import main
-
-__all__ = ["main"]
 
 if __name__ == "__main__":
     main()
