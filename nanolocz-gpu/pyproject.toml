@@ -65,6 +65,9 @@ include = ["nanolocz*"]
 [project.scripts]
 nanolocz = "nanolocz.cli.main:main"
 
+[project.entry-points."napari.manifest"]
+nanolocz = "nanolocz.plugins:napari.yaml"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
