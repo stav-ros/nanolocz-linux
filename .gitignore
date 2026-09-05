@@ -1,77 +1,56 @@
 ```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.class
+*.out
+
 # Dependencies
 .venv/
 venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-env.bak/
-venv.bak/
-.python-version
-
-# Build artifacts
-build/
-dist/
-*.egg
-*.egg-info/
-*.so
-*.dylib
-*.dll
-*.pyd
-
-# Logs
-*.log
-logs/
-
-# Environment files
 .env
 .env.local
 .env.*
-.envrc
 
-# Editors
+# Build directories
+dist/
+build/
+target/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Editors and IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS generated files
+# System files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.hypothesis/
-coverage.xml
-*.cover
-.nox/
-
-# Distribution / packaging
-*.tar.gz
-*.whl
-pip-log.txt
-pip-delete-this-directory.txt
-
-# PyInstaller
-*.manifest
-*.spec
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
 # Coverage
-.coverage*
+.coverage
+coverage/
+htmlcov/
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.PyInstaller/
+.pytest_cache/
+.mypy_cache/
 ```
