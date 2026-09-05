@@ -1,0 +1,28 @@
+{
+  "preprocess": {
+    "leveling": "plane",
+    "filter": "gaussian",
+    "filter_sigma": 1.0,
+    "remove_scars": false
+  },
+  "detect": {
+    "threshold": 3.5,
+    "min_distance": 5,
+    "prominence": 0.0,
+    "mask": null
+  },
+  "track": {
+    "max_displacement": 10,
+    "memory": 2
+  },
+  "lafm": {
+    "pixel_size": 0.5,
+    "sigma": 1.0,
+    "frc_threshold": 0.5
+  },
+  "common": {
+    "gpu": false,
+    "precision": "float64",
+    "verbose": true
+  }
+}

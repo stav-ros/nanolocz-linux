@@ -1,9 +1,9 @@
 # Project status
 
-Last updated: 2026-09-04
-Current phase: Phase 3 — LAFM+ (NL-37 COMPLETE)
-Current card: NL-38
-Status: ready to start — NL-37 3D reconstruction complete with 23/23 tests passing; starting NL-38 pipeline orchestration
+Last updated: 2026-09-05
+Current phase: Phase 4 — Interface and Ship (NL-40 COMPLETE)
+Current card: NL-41
+Status: ready to start — NL-40 CLI and batch runner complete with 18/18 tests passing; starting NL-41 Napari plugin v1
 
 ## Progress
 
@@ -34,7 +34,8 @@ Status: ready to start — NL-37 3D reconstruction complete with 23/23 tests pas
 | NL-36 | Dynamics traces, transitions, and dwell times | **done** | `nanolocz/core/dynamics.py`; `tests/test_dynamics_nl36.py`; extract_particle_traces, fit_hmm, detect_change_points, compute_dwell_times, estimate_rate_constants; 17 passed; SPEC/NL-36-dynamics-traces.md; SESSIONS/2026-09-04-NL-36.md |
 | NL-12–NL-13 | Additional file openers | done | See NL-12 and NL-13 rows above |
 | NL-37 | 3D Reconstruction from particle stacks | **done** | `nanolocz/core/reconstruction.py`; `tests/test_reconstruction_nl37.py`; back_projection, sirt, estimate_resolution_fsc, reconstruct_volume; SPEC/NL-37-3d-reconstruction.md; SESSIONS/2026-09-04-NL-37.md |
-| NL-40–NL-43 | Interface and shipping | not_started | blocked by core/GPU work |
+| NL-40 | Headless CLI and batch runner | **done** | `nanolocz/cli/` package with 7 modules; `tests/test_cli_nl40.py` (18/18 tests); CLI entry point `nanolocz` command; 5 subcommands (preprocess, detect, track, lafm, batch); JSON config support; examples/cli_config.json; SESSIONS/2026-09-05-NL-40.md |
+| NL-41–NL-43 | Interface and shipping | in_progress | NL-40 complete; NL-41 Napari plugin v1 is current card |
 | NL-51–NL-54 | Simulation bridge extensions | not_started | NL-50 minimal PDB/simulation/fitting workflow is complete; future cards cover hard-collision parity, CUDA synthesis, masked NCC, and viewer validation |
 
 ## Phase 1 reconciliation evidence
@@ -90,13 +91,14 @@ Status: ready to start — NL-37 3D reconstruction complete with 23/23 tests pas
 - Phase 1 (CPU Core): COMPLETE (NL-01 through NL-17)
 - Phase 2 (GPU Foundation): COMPLETE (NL-20, NL-21, NL-22, NL-23, NL-24, NL-30)
 - Phase 3 (LAFM+): COMPLETE (NL-31 through NL-37) ✓
+- Phase 4 (Interface and Ship): IN PROGRESS (NL-40 complete, NL-41 current)
 
 **Active card**:
-- NL-38: Pipeline orchestration — depends on NL-30✓, NL-34✓, NL-36✓, NL-37✓
+- NL-41: Napari plugin v1 — depends on NL-40✓
 
-**Next cards after NL-38**:
-- NL-39: Frontend integration with dashboard
-- NL-40: Batch processing and job queue management
+**Remaining cards in Phase 4**:
+- NL-42: Docker and conda packaging
+- NL-43: Benchmark report and v1.0-gpu release
 
 The verified workflows now support:
 ```
