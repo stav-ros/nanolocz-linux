@@ -49,7 +49,7 @@ The status ledger lives in `../STATUS.md`.
 
 ## P4 — interface and ship
 
-- **NL-40** Headless CLI and batch runner. Depends: NL-16, NL-23.
-- **NL-41** Napari plugin v1. Depends: NL-40.
-- **NL-42** Docker and conda packaging. Depends: NL-40.
-- **NL-43** Benchmark report and v1.0-gpu release. Depends: all.
+- **NL-40** Headless CLI and batch runner. Depends: NL-16, NL-23. **DONE** — 18/18 tests passing, CLI fully functional with 5 subcommands, JSON config support, batch processing queue. See `SPEC/NL-40-cli-batch-runner.md`, `SESSIONS/2026-09-05-NL-40.md`.
+- **NL-41** Napari plugin v1. Depends: NL-40. Split into NL-41a (minimum usable plugin) and NL-41b (full analysis workflow). **CURRENT CARD** — Starting NL-41a. See `SPEC/NL-41-napari-plugin.md`.
+- **NL-42** Docker and conda packaging. Depends: NL-40. **NEXT** — After NL-41a complete.
+- **NL-43** Benchmark report and v1.0-gpu release. Depends: all. **FINAL** — Phase 4 completion.

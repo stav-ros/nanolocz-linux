@@ -3,7 +3,33 @@
 Last updated: 2026-09-05
 Current phase: Phase 4 — Interface and Ship (NL-40 COMPLETE)
 Current card: NL-41
-Status: ready to start — NL-40 CLI and batch runner complete with 18/18 tests passing; starting NL-41 Napari plugin v1
+Status: Ready to start NL-41a — NL-40 CLI and batch runner complete with 18/18 tests passing; pyproject.toml updated with napari extra; README expanded with installation instructions and architecture diagram
+
+## Test Summary
+
+**Environment:**
+- Python version: 3.11+
+- OS: Linux (primary), macOS, Windows
+- CuPy installed: No (GPU tests skipped gracefully)
+- CUDA version: N/A
+
+**Test command:**
+```bash
+python -m pytest -q
+```
+
+**Results:**
+- 460 tests passing
+- 112 tests skipped (CuPy/GPU unavailable — expected behavior)
+- 0 failures
+
+**Breakdown by component:**
+- Core (detection, tracking, leveling, filters): 165+ tests
+- I/O (Zarr, file formats): 100+ tests  
+- GPU backend (CPU fallback mode): 150+ tests
+- CLI (NL-40): 18 tests
+- Reconstruction (NL-37): 23 tests
+- Other components: remaining tests
 
 ## Progress
 
